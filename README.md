@@ -1,4 +1,4 @@
-# Liste e cicli in Python: gli scontrini del negozio
+# Liste e cicli in Python: gli scontrini di un negozio
 
 Kit didattico dimostrativo del laboratorio **Lab6 — Programmazione e coding guidate dalla AI, approccio responsabile**. È il repository che il formatore costruisce davanti ai corsisti, incontro dopo incontro, con la stessa struttura del loro kit.
 
