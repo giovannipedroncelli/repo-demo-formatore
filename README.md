@@ -1,38 +1,39 @@
-# Liste e cicli in Python: gli scontrini del negozio
+# Dizionari in Python: gestione del magazzino e listino prezzi
 
 Kit didattico dimostrativo del laboratorio **Lab6 — Programmazione e coding guidate dalla AI, approccio responsabile**. È il repository che il formatore costruisce davanti ai corsisti, incontro dopo incontro, con la stessa struttura del loro kit.
 
-**Classe:** terza SIA (o AFM con informatica) · **Durata:** 8 ore · **Prerequisiti:** variabili, `input` e `print`, `if`, funzioni con `return`.
+**Classe:** terza SIA · **Durata:** 8 ore · **Prerequisiti:** variabili, `input` e `print`, costrutti di selezione (`if-elif-else`), cicli `for` e `while`, liste, funzioni con `return`.
 
 ## Obiettivi di apprendimento (osservabili)
 
 Alla fine dell'UdA lo studente sa:
-1. prevedere il valore di un accumulatore a ogni giro di un ciclo `for` su una lista;
-2. scrivere funzioni che scorrono una lista per calcolare totale, massimo, conteggio e media;
-3. individuare e correggere l'errore di uno, l'accumulatore nel posto sbagliato, `print` al posto di `return`;
-4. scrivere test che descrivono una specifica, compresi i casi limite (lista vuota, resi negativi, soglia esatta);
-5. usare un assistente IA secondo le regole del patto d'aula e spiegare il codice che consegna.
+1. modellare dati economico-aziendali (es. anagrafica articoli, listino prezzi, giacenze di magazzino) mediante dizionari Python con tipi di chiavi e valori appropriati;
+2. eseguire operazioni di lettura, inserimento, modifica e cancellazione di coppie chiave-valore, gestendo le chiavi inesistenti tramite operatore `in` e metodo `.get()`;
+3. iterare su un dizionario utilizzando `.keys()`, `.values()` e `.items()` per estrarre aggregazioni e report (es. valore totale dell'inventario, articoli sottoscorta);
+4. manipolare strutture dati combinate elementari (es. lista di dizionari per ordini clienti o dizionario con valori complessi);
+5. individuare, isolare e correggere errori tipici di accesso e mutazione (`KeyError`, sovrascrittura accidentale, modifica della dimensione del dizionario durante un ciclo);
+6. utilizzare un assistente IA come tutor di supporto e correttore nel rispetto del patto d'aula, documentando i prompt e sapendo spiegare e giustificare ogni riga di codice consegnata.
 
 ## Misconcezioni affrontate
 
-- accumulatore non inizializzato o reinizializzato dentro il ciclo;
-- confusione tra indice ed elemento;
-- errore di uno (`range(1, len(prezzi))`);
-- `print` al posto di `return`;
-- modificare una lista mentre la si scorre;
-- ordine delle operazioni tra IVA e sconto (specifica ambigua).
+- **Confusione tra indice numerico posizionale e chiave**: tentare di accedere a un dizionario con indici sequenziali (`d[0]`) pensando che funzioni come una lista o che le chiavi debbano essere numeriche ordinate;
+- **Confusione tra chiave e valore**: tentare di ottenere la chiave passando il valore tra parentesi quadre (`d[valore]`), o cercare corrispondenze nei valori credendo di interrogare le chiavi;
+- **`KeyError` inatteso**: dare per scontato che accedere a una chiave assente restituisca `None` o stringa vuota, omettendo l'operatore di appartenenza `in` o il fallback di `.get()`;
+- **Sovrascrittura accidentale**: dimenticare che le chiavi sono univoche e che riassegnare `d[k] = nuovo_valore` sovrascrive il dato esistente anziché aggiungerne un duplicato;
+- **Mutazione durante l'iterazione**: tentare di eliminare o inserire elementi (`del`, `.pop()`) all'interno di un ciclo che scorre il dizionario (`RuntimeError: dictionary changed size during iteration`);
+- **Mancata comprensione dell'unpacking con `.items()`**: non cogliere che `.items()` restituisce una tupla `(chiave, valore)` e tentare di accedere ai valori come attributi o indici errati.
 
 ## Sequenza delle lezioni
 
 | Lezione | Attività | Livello IA (0-4) | AI-proof / AI-powered | Materiali e agenti |
 |---|---|---|---|---|
-| 1 (1h) | Il ciclo `for` sugli scontrini: spiegazione e tracing alla lavagna | 0 | AI-proof | Esercizio PRIMM 1 |
-| 2 (1h) | Il tracciatore interattivo, alla LIM e poi individuale | 0 | AI-proof | [Tracciatore del ciclo](artefatti/tracciatore-ciclo.html) |
-| 3 (1h) | Studio dei concetti con il tutor | 1 | AI-powered (tutor) | Gem S1 Tutor socratico |
-| 4 (1h) | Massimo e conteggio; errori nel proprio codice | 1 | AI-powered (tutor) | Esercizio PRIMM 2; Gem S3 Traduttore di errori |
-| 5 (1h) | Trova l'errore dell'IA | 3 | AI-powered (oggetto di studio) | `verifiche/ai-powered/trova-errore/` |
-| 6 (1h) | Verifica in classe | 0 | AI-proof | `verifiche/ai-proof/verifica-liste-cicli.md` |
-| 7-8 (2h) | Mini-progetto "Report di fine giornata" e orale | 4 | AI-powered, con evidenze | `verifiche/ai-powered/report-fine-giornata.md`; Gem S9 Allenatore di prompt |
+| 1 (1h) | Dal foglio di calcolo alla coppia chiave-valore: modellazione del listino prezzi e giacenze. Tracing alla lavagna e lettura guidata (PRIMM - Predict & Run) | 0 | AI-proof | Esercizio PRIMM 1 (Listino & Magazzino) |
+| 2 (1h) | Accesso e aggiornamento sicuro: `in`, `.get()` e gestione delle scorte. Esercitazione individuale al calcolatore (PRIMM - Investigate & Modify) | 0 | AI-proof | Scheda laboratorio 1; Tracciatore memoria chiave-valore |
+| 3 (1h) | Iterazione su dizionari (`.keys()`, `.values()`, `.items()`): calcolo del valore inventariale e filtro sottoscorta con supporto socratico | 1 | AI-powered (tutor) | Esercizio guidato; Gem S1 Tutor socratico |
+| 4 (1h) | Strutture dati combinate: lista di transazioni/scontrini rappresentati come dizionari. Debugging di errori di accesso | 1 | AI-powered (tutor) | Esercizio PRIMM 2; Gem S3 Traduttore di errori |
+| 5 (1h) | "Trova l'errore dell'IA": analisi critica di script generati da LLM contenenti allucinazioni, `KeyError` e cancellazioni in ciclo | 3 | AI-powered (oggetto di studio) | `verifiche/ai-powered/trova-errore-dizionari/` |
+| 6 (1h) | Verifica sommativa individuale in laboratorio (su carta o ambiente privo di accesso web/IA) | 0 | AI-proof | `verifiche/ai-proof/verifica-dizionari-sia.md` |
+| 7-8 (2h) | Mini-progetto a coppie: "Gestione cassa e inventario per una PMI" con documentazione prompt/changelog e colloquio orale di difesa del codice | 4 | AI-powered, con evidenze | `verifiche/ai-powered/progetto-inventario-pmi.md`; Gem S9 Allenatore di prompt |
 
 ## Agenti per gli studenti
 
