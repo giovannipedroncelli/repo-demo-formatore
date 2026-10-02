@@ -28,7 +28,7 @@ Alla fine dell'UdA lo studente sa:
 | Lezione | Attività | Livello IA (0-4) | AI-proof / AI-powered | Materiali e agenti |
 |---|---|---|---|---|
 | 1 (1h) | Dal foglio di calcolo alla coppia chiave-valore: modellazione del listino prezzi e giacenze. Tracing alla lavagna e lettura guidata (PRIMM - Predict & Run) | 0 | AI-proof | Esercizio PRIMM 1 (Listino & Magazzino) |
-| 2 (1h) | Accesso e aggiornamento sicuro: `in`, `.get()` e gestione delle scorte. Esercitazione individuale al calcolatore (PRIMM - Investigate & Modify) | 0 | AI-proof | Scheda laboratorio 1; Tracciatore memoria chiave-valore |
+| 2 (1h) | Accesso e aggiornamento sicuro: `in`, `.get()` e gestione delle scorte. Esercitazione individuale al calcolatore (PRIMM - Investigate & Modify) | 0 | AI-proof | Scheda laboratorio 1; [Tracciatore memoria chiave-valore](artefatti/tracciatore-dizionari.html) |
 | 3 (1h) | Iterazione su dizionari (`.keys()`, `.values()`, `.items()`): calcolo del valore inventariale e filtro sottoscorta con supporto socratico | 1 | AI-powered (tutor) | Esercizio guidato; Gem S1 Tutor socratico |
 | 4 (1h) | Strutture dati combinate: lista di transazioni/scontrini rappresentati come dizionari. Debugging di errori di accesso | 1 | AI-powered (tutor) | Esercizio PRIMM 2; Gem S3 Traduttore di errori |
 | 5 (1h) | "Trova l'errore dell'IA": analisi critica di script generati da LLM contenenti allucinazioni, `KeyError` e cancellazioni in ciclo | 3 | AI-powered (oggetto di studio) | `verifiche/ai-powered/trova-errore-dizionari/` |

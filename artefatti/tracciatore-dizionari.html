@@ -1,0 +1,2802 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Dict Lab — Magazzino & Listino Prezzi | Terza SIA</title>
+  <style>
+    /* ==========================================================================
+       DESIGN SYSTEM & TEMA LIM (Lavagna Interattiva Multimediale)
+       ========================================================================== */
+    :root {
+      --font-scale: 1;
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: "Cascadia Code", "Fira Code", Consolas, "Courier New", monospace;
+      
+      /* Palette Scura (Default IDE Moderno) */
+      --bg-main: #0b0f19;
+      --bg-surface: #151d30;
+      --bg-surface-elevated: #1e293b;
+      --bg-surface-subtle: #0f172a;
+      
+      --border-subtle: #334155;
+      --border-strong: #475569;
+      --border-focus: #38bdf8;
+
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-bright: #ffffff;
+
+      --color-primary: #38bdf8;
+      --color-primary-glow: rgba(56, 189, 248, 0.25);
+      --color-success: #10b981;
+      --color-success-bg: rgba(16, 185, 129, 0.15);
+      --color-warning: #f59e0b;
+      --color-warning-bg: rgba(245, 158, 11, 0.15);
+      --color-danger: #ef4444;
+      --color-danger-bg: rgba(239, 68, 68, 0.18);
+      --color-purple: #a855f7;
+      --color-purple-bg: rgba(168, 85, 247, 0.15);
+
+      --key-badge-bg: #854d0e;
+      --key-badge-text: #fef08a;
+      --val-badge-bg: #0369a1;
+      --val-badge-text: #bae6fd;
+
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+      --shadow-lg: 0 8px 24px rgba(0,0,0,0.5);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-full: 9999px;
+      --transition: 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Modalità Lavagna Chiara ad Alto Contrasto (Ideale per proiettori LIM in aule luminose) */
+    body.lim-light-mode {
+      --bg-main: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #e2e8f0;
+      --bg-surface-subtle: #f8fafc;
+
+      --border-subtle: #cbd5e1;
+      --border-strong: #94a3b8;
+      --border-focus: #0284c7;
+
+      --text-primary: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --text-bright: #000000;
+
+      --color-primary: #0284c7;
+      --color-primary-glow: rgba(2, 132, 199, 0.18);
+      --color-success: #059669;
+      --color-success-bg: #d1fae5;
+      --color-warning: #d97706;
+      --color-warning-bg: #fef3c7;
+      --color-danger: #dc2626;
+      --color-danger-bg: #fee2e2;
+      --color-purple: #7c3aed;
+      --color-purple-bg: #ede9fe;
+
+      --key-badge-bg: #fef08a;
+      --key-badge-text: #713f12;
+      --val-badge-bg: #bae6fd;
+      --val-badge-text: #075985;
+
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 8px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.12);
+    }
+
+    /* Scala caratteri speciale per LIM */
+    html {
+      font-size: calc(16px * var(--font-scale));
+      box-sizing: border-box;
+    }
+    *, *::before, *::after {
+      box-sizing: inherit;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color var(--transition), color var(--transition);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ==========================================================================
+       TOPBAR & STRUMENTI LIM
+       ========================================================================== */
+    .topbar {
+      background-color: var(--bg-surface);
+      border-bottom: 2px solid var(--border-subtle);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #ffffff;
+      box-shadow: 0 0 12px var(--color-primary-glow);
+    }
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+    .brand-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .badge-pill {
+      background-color: var(--color-primary-glow);
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+      padding: 0.15rem 0.6rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .lim-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Pulsanti touch-friendly (min 48px) */
+    .btn {
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.6rem 1.1rem;
+      min-height: 44px;
+      min-width: 44px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background-color: var(--bg-surface-elevated);
+      color: var(--text-primary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all var(--transition);
+      touch-action: manipulation;
+      user-select: none;
+    }
+    .btn:hover {
+      background-color: var(--border-strong);
+      border-color: var(--border-focus);
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(1px);
+    }
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: #0b0f19;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 10px var(--color-primary-glow);
+    }
+    body.lim-light-mode .btn-primary {
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background-color: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff;
+    }
+    .btn-success {
+      background-color: var(--color-success);
+      color: #ffffff;
+      border-color: var(--color-success);
+    }
+    .btn-warning {
+      background-color: var(--color-warning);
+      color: #0b0f19;
+      border-color: var(--color-warning);
+    }
+    .btn-danger {
+      background-color: var(--color-danger);
+      color: #ffffff;
+      border-color: var(--color-danger);
+    }
+    .btn-icon-only {
+      padding: 0.6rem;
+      border-radius: var(--radius-md);
+      font-size: 1.15rem;
+    }
+
+    /* ==========================================================================
+       NAVIGATORE A SCHEDE (TABS)
+       ========================================================================== */
+    .nav-tabs-wrapper {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 1rem;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0.5rem 0;
+      list-style: none;
+    }
+    .tab-item {
+      margin: 0;
+    }
+    .tab-btn {
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      padding: 0.75rem 1.25rem;
+      min-height: 48px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 2px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      white-space: nowrap;
+      transition: all var(--transition);
+    }
+    .tab-btn:hover {
+      background-color: var(--bg-surface-elevated);
+      color: var(--text-primary);
+    }
+    .tab-btn.active {
+      background-color: var(--bg-surface-elevated);
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 12px var(--color-primary-glow);
+    }
+    .tab-num {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-full);
+      background-color: var(--bg-surface-subtle);
+      border: 1px solid currentColor;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       MAIN CONTENT CONTAINER
+       ========================================================================== */
+    .main-container {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem;
+      flex: 1;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Intestazione modulo */
+    .module-header {
+      background: linear-gradient(135deg, var(--bg-surface), var(--bg-surface-elevated));
+      border: 1px solid var(--border-subtle);
+      border-left: 6px solid var(--color-primary);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.75rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .module-header h2 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.4rem;
+      color: var(--text-bright);
+    }
+    .module-header p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      max-width: 850px;
+    }
+    .target-badge {
+      background-color: var(--color-primary-glow);
+      color: var(--color-primary);
+      border: 1px solid var(--color-primary);
+      font-size: 0.85rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* ==========================================================================
+       GRIGLIE E CARD GENERALI
+       ========================================================================== */
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 1024px) {
+      .grid-2col, .grid-3col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+    }
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      margin-top: 0;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.6rem;
+    }
+
+    /* ==========================================================================
+       CODICE E PYTHON TRACEBACK
+       ========================================================================== */
+    .code-box {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      background-color: var(--bg-surface-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      overflow-x: auto;
+      line-height: 1.65;
+      color: #e2e8f0;
+      position: relative;
+      white-space: pre-wrap;
+      tab-size: 4;
+    }
+    body.lim-light-mode .code-box {
+      background-color: #1e293b;
+      color: #f8fafc;
+    }
+    .code-line {
+      display: flex;
+      align-items: baseline;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      white-space: pre;
+    }
+    .code-line.active {
+      background-color: rgba(56, 189, 248, 0.25);
+      border-left: 4px solid var(--color-primary);
+      color: #ffffff;
+      font-weight: 700;
+    }
+    .code-ln {
+      width: 2.4rem;
+      min-width: 2.4rem;
+      color: #64748b;
+      user-select: none;
+      text-align: right;
+      padding-right: 0.85rem;
+      flex-shrink: 0;
+      font-weight: 500;
+      border-right: 1px solid var(--border-subtle);
+      margin-right: 0.75rem;
+    }
+    .code-text,
+    .code-line > span:last-child {
+      white-space: pre !important;
+      tab-size: 4;
+      font-family: inherit;
+    }
+    /* Indicatori visivi di rientro / indentazione per la LIM */
+    .indent-guide {
+      display: inline-block;
+      width: 4ch;
+      color: rgba(148, 163, 184, 0.55);
+      border-left: 2px dashed rgba(56, 189, 248, 0.5);
+      margin-left: -1px;
+      user-select: none;
+      font-size: 0.9em;
+      letter-spacing: 0.15em;
+    }
+    body.lim-light-mode .indent-guide {
+      color: rgba(100, 116, 139, 0.55);
+      border-left-color: rgba(2, 132, 199, 0.6);
+    }
+    .kw { color: #f472b6; font-weight: 600; }
+    .fn { color: #38bdf8; font-weight: 600; }
+    .str { color: #4ade80; }
+    .num { color: #fb923c; }
+    .cm { color: #94a3b8; font-style: italic; }
+    .op { color: #cbd5e1; }
+    .var { color: #e2e8f0; }
+
+    /* Traceback Box stile Python */
+    .traceback-card {
+      background-color: #290808;
+      border: 2px solid var(--color-danger);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      color: #fca5a5;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.2);
+    }
+    body.lim-light-mode .traceback-card {
+      background-color: #fef2f2;
+      color: #991b1b;
+      border-color: #ef4444;
+    }
+    .tb-header {
+      font-weight: 700;
+      color: var(--color-danger);
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+    }
+
+    /* ==========================================================================
+       COMPONENTI VISIVI DIZIONARIO & RAM
+       ========================================================================== */
+    .dict-memory-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 0.5rem;
+    }
+    .dict-memory-table th {
+      text-align: left;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.4rem 0.8rem;
+    }
+    .dict-row {
+      background-color: var(--bg-surface-elevated);
+      border-radius: var(--radius-md);
+      transition: all var(--transition);
+    }
+    .dict-row td {
+      padding: 0.75rem 0.8rem;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .dict-row td:first-child {
+      border-left: 1px solid var(--border-subtle);
+      border-top-left-radius: var(--radius-md);
+      border-bottom-left-radius: var(--radius-md);
+    }
+    .dict-row td:last-child {
+      border-right: 1px solid var(--border-subtle);
+      border-top-right-radius: var(--radius-md);
+      border-bottom-right-radius: var(--radius-md);
+    }
+    .dict-row.highlight {
+      background-color: rgba(56, 189, 248, 0.2);
+      transform: scale(1.01);
+      box-shadow: 0 0 15px var(--color-primary-glow);
+    }
+    .dict-row.processed {
+      opacity: 0.75;
+      border-color: var(--color-success);
+    }
+    .dict-row.alert-sottoscorta {
+      background-color: var(--color-danger-bg);
+      border-color: var(--color-danger);
+    }
+
+    .key-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      background-color: var(--key-badge-bg);
+      color: var(--key-badge-text);
+      padding: 0.3rem 0.7rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    }
+    .val-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 600;
+      background-color: var(--val-badge-bg);
+      color: var(--val-badge-text);
+      padding: 0.3rem 0.7rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .hash-arrow {
+      color: var(--color-primary);
+      font-weight: 800;
+      font-size: 1.1rem;
+      user-select: none;
+    }
+
+    /* ==========================================================================
+       CONTROLLI STEPPER PER TRACCIATORE DI CICLI
+       ========================================================================== */
+    .tracer-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+      background-color: var(--bg-surface-elevated);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1rem;
+      border: 1px solid var(--border-subtle);
+    }
+    .tracer-status {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-bright);
+      margin-left: auto;
+      padding: 0.35rem 0.85rem;
+      background-color: var(--bg-surface-subtle);
+      border-radius: var(--radius-full);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .var-inspector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 1rem;
+      padding: 0.85rem;
+      background-color: var(--bg-surface-subtle);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+    }
+    .var-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--bg-surface);
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+    .var-name {
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+    .var-val {
+      color: #f1f5f9;
+      background-color: var(--bg-surface-elevated);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+    }
+    body.lim-light-mode .var-val {
+      color: #0f172a;
+    }
+
+    /* ==========================================================================
+       PALESTRA MISCONCEZIONI & PRIMM (Predict - Run - Investigate - Modify)
+       ========================================================================== */
+    .miscon-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+    }
+    .miscon-btn {
+      padding: 0.85rem;
+      border-radius: var(--radius-md);
+      background-color: var(--bg-surface);
+      border: 2px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      transition: all var(--transition);
+      min-height: 80px;
+    }
+    .miscon-btn:hover {
+      border-color: var(--color-warning);
+      color: var(--text-primary);
+      transform: translateY(-2px);
+    }
+    .miscon-btn.active {
+      border-color: var(--color-warning);
+      background-color: var(--color-warning-bg);
+      color: var(--text-bright);
+      box-shadow: 0 0 12px var(--color-warning-bg);
+    }
+    .miscon-tag {
+      font-size: 0.75rem;
+      color: var(--color-warning);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .primm-box {
+      background-color: var(--bg-surface);
+      border: 2px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .primm-step-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-predict { background-color: var(--color-warning-bg); color: var(--color-warning); border: 1px solid var(--color-warning); }
+    .badge-run { background-color: var(--color-danger-bg); color: var(--color-danger); border: 1px solid var(--color-danger); }
+    .badge-fix { background-color: var(--color-success-bg); color: var(--color-success); border: 1px solid var(--color-success); }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin: 1rem 0;
+    }
+    .quiz-opt {
+      padding: 0.9rem 1.25rem;
+      background-color: var(--bg-surface-elevated);
+      border: 2px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: all var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 52px;
+    }
+    .quiz-opt:hover {
+      border-color: var(--color-primary);
+      background-color: var(--bg-surface-subtle);
+    }
+    .quiz-opt.correct {
+      border-color: var(--color-success);
+      background-color: var(--color-success-bg);
+      color: var(--color-success);
+      font-weight: 700;
+    }
+    .quiz-opt.wrong {
+      border-color: var(--color-danger);
+      background-color: var(--color-danger-bg);
+      color: var(--color-danger);
+    }
+
+    /* ==========================================================================
+       MINI-GESTIONALE CASSA & MAGAZZINO PMI
+       ========================================================================== */
+    .pos-layout {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 1024px) {
+      .pos-layout { grid-template-columns: 1fr; }
+    }
+    .catalog-item-card {
+      background-color: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      transition: all var(--transition);
+    }
+    .catalog-item-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 2px 8px var(--color-primary-glow);
+    }
+    .scontrino-ticket {
+      background-color: #ffffff;
+      color: #111827;
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      box-shadow: var(--shadow-lg);
+      border: 2px dashed #9ca3af;
+      line-height: 1.4;
+    }
+    .scontrino-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 0.35rem 0;
+    }
+    .scontrino-divider {
+      border-top: 1px dashed #4b5563;
+      margin: 0.75rem 0;
+    }
+    .scontrino-totale {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #000000;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+    }
+
+    /* ==========================================================================
+       TUTOR SOCRATICO (SIMULATORE GEM S1 & S3)
+       ========================================================================== */
+    .chat-container {
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      height: 600px;
+      overflow: hidden;
+    }
+    .chat-messages {
+      flex: 1;
+      padding: 1.25rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .chat-bubble {
+      max-width: 80%;
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius-lg);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .chat-bubble.bot {
+      align-self: flex-start;
+      background-color: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-bottom-left-radius: 4px;
+      color: var(--text-primary);
+    }
+    .chat-bubble.bot .bot-header {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      background-color: var(--color-primary);
+      color: #0b0f19;
+      border-bottom-right-radius: 4px;
+      font-weight: 500;
+    }
+    body.lim-light-mode .chat-bubble.user {
+      color: #ffffff;
+      background-color: #0284c7;
+    }
+    .chat-prompt-chips {
+      padding: 0.75rem 1.25rem;
+      background-color: var(--bg-surface-subtle);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .chip-btn {
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.85rem;
+      min-height: 38px;
+      border-radius: var(--radius-full);
+      background-color: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .chip-btn:hover {
+      border-color: var(--color-primary);
+      background-color: var(--color-primary-glow);
+      color: var(--color-primary);
+    }
+
+    /* ==========================================================================
+       MODALE OBIETTIVI & HELP
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-card {
+      background-color: var(--bg-surface);
+      border: 2px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      max-width: 800px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      padding: 2rem;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-full);
+    }
+    .modal-close:hover {
+      background-color: var(--bg-surface-elevated);
+      color: var(--text-bright);
+    }
+
+    /* Note didattiche */
+    .didactic-note {
+      background-color: var(--bg-surface-subtle);
+      border-left: 4px solid var(--color-primary);
+      padding: 0.85rem 1.15rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    .didactic-note strong {
+      color: var(--color-primary);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 1rem 1.5rem;
+      background-color: var(--bg-surface);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       TOPBAR CON CONTROLLI SPECIFICI PER LA LIM
+       ======================================================================== -->
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">{&nbsp;}</div>
+      <div>
+        <h1 class="brand-title">Python Dict Lab — Magazzino & Listino</h1>
+        <p class="brand-subtitle">
+          <span>Classe 3ª SIA</span>
+          <span aria-hidden="true">•</span>
+          <span class="badge-pill">UdA Dizionari</span>
+          <span aria-hidden="true">•</span>
+          <span>Dati Economico-Aziendali</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Strumenti LIM: Font +/-, Tema Lavagna, Schermo Intero, Obiettivi -->
+    <div class="lim-controls">
+      <button class="btn btn-icon-only" id="btn-font-dec" title="Riduci dimensione caratteri" aria-label="Riduci testo">A-</button>
+      <button class="btn btn-icon-only" id="btn-font-inc" title="Aumenta dimensione caratteri per gli studenti in fondo all'aula" aria-label="Ingrandisci testo per LIM">A+</button>
+      <button class="btn" id="btn-theme-toggle" title="Attiva modalità lavagna chiara ad alto contrasto">
+        <span id="theme-icon">☀️</span> <span id="theme-text">Modo Lavagna</span>
+      </button>
+      <button class="btn" id="btn-fullscreen" title="Schermo intero LIM">
+        <span>⛶</span> Fullscreen
+      </button>
+      <button class="btn btn-primary" id="btn-open-goals">
+        <span>🎯</span> Obiettivi UdA
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       BARRA DI NAVIGAZIONE A SCHEDE (TABS)
+       ======================================================================== -->
+  <nav class="nav-tabs-wrapper" aria-label="Sezioni del laboratorio didattico">
+    <ul class="nav-tabs" role="tablist">
+      <li class="tab-item" role="presentation">
+        <button class="tab-btn active" role="tab" aria-selected="true" data-tab="tab-model">
+          <span class="tab-num">1</span> Dal Foglio Excel al Dizionario
+        </button>
+      </li>
+      <li class="tab-item" role="presentation">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-crud">
+          <span class="tab-num">2</span> Operazioni CRUD & Accesso Sicuro
+        </button>
+      </li>
+      <li class="tab-item" role="presentation">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-tracer">
+          <span class="tab-num">3</span> Tracciatore dei Cicli (.items)
+        </button>
+      </li>
+      <li class="tab-item" role="presentation">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-miscon">
+          <span class="tab-num">4</span> Palestra Anti-Misconcezioni
+        </button>
+      </li>
+      <li class="tab-item" role="presentation">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-pos">
+          <span class="tab-num">5</span> Mini-Gestionale Cassa & Scorte
+        </button>
+      </li>
+      <li class="tab-item" role="presentation">
+        <button class="tab-btn" role="tab" aria-selected="false" data-tab="tab-tutor">
+          <span class="tab-num">6</span> Tutor Socratico (Gem S1/S3)
+        </button>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- ========================================================================
+       AREA PRINCIPALE
+       ======================================================================== -->
+  <main class="main-container">
+
+    <!-- ======================================================================
+         SCHEDA 1: MODELLAZIONE DEI DATI AZIENDALI & MEMORIA
+         ====================================================================== -->
+    <section id="tab-model" class="tab-content active" role="tabpanel">
+      <div class="module-header">
+        <div>
+          <h2>1. Dal Foglio di Calcolo alla Struttura Dati in RAM</h2>
+          <p>Nel biennio avete gestito listini e giacenze su Excel. In Python, per accedere a un articolo in tempo immediato senza dover scorrere tutta la lista, usiamo le <strong>chiavi univoche</strong> (SKU / Barcode) del dizionario.</p>
+        </div>
+        <div class="target-badge">Obiettivo 1: Modellazione Dati</div>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Lato Sinistro: Tabella Aziendale Stile Foglio Elettronico -->
+        <div class="card">
+          <h3 class="card-title">
+            <span>📊 Foglio Excel di Magazzino (Righe & Colonne)</span>
+            <span class="badge-pill">Modello Tabellare</span>
+          </h3>
+          <p style="font-size:0.9rem; color:var(--text-secondary); margin-top:0;">
+            Ogni riga rappresenta un record aziendale. La colonna identificativa è la chiave primaria.
+          </p>
+
+          <div style="overflow-x: auto;">
+            <table style="width:100%; border-collapse: collapse; font-size:0.9rem; text-align:left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border-subtle); color:var(--text-muted);">
+                  <th style="padding:0.5rem;">Codice SKU (Chiave)</th>
+                  <th style="padding:0.5rem;">Descrizione Articolo</th>
+                  <th style="padding:0.5rem;">Prezzo (€)</th>
+                  <th style="padding:0.5rem;">Giacenza</th>
+                  <th style="padding:0.5rem;">Scorta Min</th>
+                </tr>
+              </thead>
+              <tbody id="excel-table-body">
+                <!-- Popolato da JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="didactic-note" style="margin-top:auto;">
+            <strong>💡 Perché non una lista di prezzi ordinaria?</strong><br>
+            In una lista <code>prezzi = [12.50, 45.00, ...]</code> l'indice <code>0</code> non dice nulla sull'articolo. Con il dizionario, cerchi direttamente per codice: <code>magazzino["ART-01"]</code>!
+          </div>
+        </div>
+
+        <!-- Lato Destro: Rappresentazione in Memoria Python -->
+        <div class="card">
+          <h3 class="card-title">
+            <span>🧠 Dizionario Python in Memoria RAM</span>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn btn-sm" id="btn-toggle-struct-simple">Listino Semplice</button>
+              <button class="btn btn-sm btn-primary" id="btn-toggle-struct-nested">Anagrafica Completa</button>
+            </div>
+          </h3>
+
+          <div id="model-code-preview" class="code-box" style="margin-bottom:1rem; max-height:160px; overflow-y:auto;">
+            <!-- Codice generato in tempo reale -->
+          </div>
+
+          <h4 style="margin: 0.5rem 0; font-size:0.95rem; color:var(--text-secondary);">Mappa Chiave 🔑 ➔ Valore 📦:</h4>
+          <div id="memory-slots-container" style="display:flex; flex-direction:column; gap:0.5rem; max-height:220px; overflow-y:auto; padding-right:0.4rem;">
+            <!-- Slot RAM renderizzati dinamicamente -->
+          </div>
+
+          <!-- Laboratorio Interattivo di Sovrascrittura Chiave -->
+          <div style="margin-top:1rem; padding:0.85rem; background-color:var(--bg-surface-elevated); border-radius:var(--radius-md); border:1px dashed var(--color-warning);">
+            <strong style="color:var(--color-warning); display:flex; align-items:center; gap:0.4rem;">
+              ⚠️ Verifica Sperimentale: Le chiavi sono univoche!
+            </strong>
+            <p style="font-size:0.85rem; color:var(--text-secondary); margin:0.3rem 0 0.6rem 0;">
+              Prova a inserire un codice già esistente (es. <code>ART-01</code>) con un nuovo valore: cosa succede al vecchio dato?
+            </p>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <input type="text" id="demo-key-input" value="ART-01" style="font-family:var(--font-mono); padding:0.5rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-surface-subtle); color:var(--text-primary); width:110px;">
+              <input type="number" id="demo-val-input" value="99" style="font-family:var(--font-mono); padding:0.5rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-surface-subtle); color:var(--text-primary); width:80px;" placeholder="Giac.">
+              <button class="btn btn-warning" id="btn-demo-test-overwrite">Esegui Assegnazione</button>
+            </div>
+            <div id="demo-overwrite-feedback" style="margin-top:0.5rem; font-size:0.85rem;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SCHEDA 2: OPERAZIONI CRUD & ACCESSO SICURO
+         ====================================================================== -->
+    <section id="tab-crud" class="tab-content" role="tabpanel">
+      <div class="module-header">
+        <div>
+          <h2>2. Operazioni CRUD & Accesso Sicuro (Evitare il KeyError)</h2>
+          <p>Sperimenta dal vivo la lettura con parentesi quadre <code>[]</code> contro il metodo sicuro <code>.get()</code> e l'operatore di appartenenza <code>in</code>.</p>
+        </div>
+        <div class="target-badge">Obiettivo 2: Lettura, Scrittura, in, .get()</div>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Pannello Operazioni Interattive per LIM -->
+        <div class="card">
+          <h3 class="card-title">
+            <span>⚡ Banco Comandi Python (Tocca un'operazione)</span>
+            <span class="badge-pill">Interattivo LIM</span>
+          </h3>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.6rem; margin-bottom:1rem;">
+            <button class="btn" id="crud-btn-read-ok">
+              📖 Leggi Chiave Esistente <br><small><code>magazzino["ART-01"]</code></small>
+            </button>
+            <button class="btn btn-danger" id="crud-btn-read-fail">
+              💥 Leggi Chiave Assente <br><small><code>magazzino["ART-99"]</code></small>
+            </button>
+            <button class="btn btn-success" id="crud-btn-check-in">
+              🛡️ Verifica con 'in' <br><small><code>if "ART-99" in magazzino:</code></small>
+            </button>
+            <button class="btn btn-success" id="crud-btn-get-default">
+              🛡️ Lettura con .get() <br><small><code>magazzino.get("ART-99", 0)</code></small>
+            </button>
+            <button class="btn btn-primary" id="crud-btn-insert">
+              ➕ Aggiungi Nuovo Articolo <br><small><code>magazzino["ART-05"] = {...}</code></small>
+            </button>
+            <button class="btn btn-warning" id="crud-btn-delete">
+              🗑️ Elimina Articolo <br><small><code>del magazzino["ART-03"]</code></small>
+            </button>
+          </div>
+
+          <!-- Modulo Personalizzato per lo Studente alla LIM -->
+          <div style="background-color:var(--bg-surface-elevated); padding:1rem; border-radius:var(--radius-md); border:1px solid var(--border-subtle);">
+            <h4 style="margin:0 0 0.5rem 0; font-size:0.95rem;">Prova una chiave personalizzata:</h4>
+            <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:0.5rem;">
+              <input type="text" id="crud-custom-key" placeholder="Es. ART-02 o ART-88" style="flex:1; min-width:140px; padding:0.6rem; font-family:var(--font-mono); border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-surface-subtle); color:var(--text-primary);">
+              <select id="crud-custom-action" style="padding:0.6rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle); background:var(--bg-surface-subtle); color:var(--text-primary); font-family:var(--font-sans);">
+                <option value="quadre">Accesso diretto [...]</option>
+                <option value="in">Operatore 'in'</option>
+                <option value="get">Metodo .get(chiave, default)</option>
+                <option value="del">Elimina con del</option>
+              </select>
+              <button class="btn btn-primary" id="crud-custom-run">Esegui alla LIM</button>
+            </div>
+          </div>
+
+          <!-- Codice Python Generato dall'Azione -->
+          <div style="margin-top:1rem;">
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.3rem;">Codice Python eseguito:</div>
+            <div id="crud-code-display" class="code-box">
+              <span class="cm"># Seleziona un'operazione per vedere l'effetto in memoria</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pannello Esito & Stato Memoria -->
+        <div class="card">
+          <h3 class="card-title">
+            <span>📦 Stato Memoria del Dizionario 'magazzino'</span>
+            <button class="btn btn-sm" id="crud-reset-dict">Ripristina Dati Iniziali</button>
+          </h3>
+
+          <div id="crud-feedback-container">
+            <div style="padding:0.85rem; background:var(--color-success-bg); border:1px solid var(--color-success); border-radius:var(--radius-md); color:var(--color-success); font-weight:600;">
+              Pronto per l'interazione. Il dizionario contiene attualmente 4 articoli.
+            </div>
+          </div>
+
+          <div style="margin-top:1rem; flex:1; overflow-y:auto; max-height:360px;">
+            <table class="dict-memory-table" id="crud-memory-table">
+              <thead>
+                <tr>
+                  <th>Chiave (Codice)</th>
+                  <th></th>
+                  <th>Valore (Anagrafica Articolo)</th>
+                </tr>
+              </thead>
+              <tbody id="crud-memory-body">
+                <!-- Popolato dinamicamente da JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SCHEDA 3: TRACCIATORE DEI CICLI (.keys, .values, .items)
+         ====================================================================== -->
+    <section id="tab-tracer" class="tab-content" role="tabpanel">
+      <div class="module-header">
+        <div>
+          <h2>3. Visualizzatore Passo-Passo dei Cicli su Dizionari</h2>
+          <p>Come scorre Python un dizionario? Osserva come cambiano le variabili e la testina di lettura con i tre metodi fondamentali: <code>.keys()</code>, <code>.values()</code> e il potente disimballaggio di <code>.items()</code> per report aziendali.</p>
+        </div>
+        <div class="target-badge">Obiettivo 3: Iterazione & Aggregazioni</div>
+      </div>
+
+      <!-- Scelta dell'algoritmo didattico -->
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem;">
+        <button class="btn active" id="tracer-algo-items">
+          📊 Report Inventario & Sottoscorta (con .items())
+        </button>
+        <button class="btn" id="tracer-algo-keys">
+          🔑 Elenco Codici a Catalogo (con .keys())
+        </button>
+        <button class="btn" id="tracer-algo-values">
+          📦 Somma Totale Giacenze Fisiche (con .values())
+        </button>
+      </div>
+
+      <!-- Controlli Stepper Touch per la LIM -->
+      <div class="tracer-controls">
+        <button class="btn" id="step-first" title="Vai all'inizio">⏮ Inizio</button>
+        <button class="btn" id="step-prev" title="Passo precedente">◀ Indietro</button>
+        <button class="btn btn-primary" id="step-next" title="Esegui passo successivo">▶ Passo Successivo</button>
+        <button class="btn" id="step-last" title="Vai al termine">⏭ Fine</button>
+        <button class="btn" id="step-autoplay" title="Avvia animazione automatica">⏯ Auto</button>
+        <button class="btn" id="step-reset" title="Ricomincia il ciclo">🔁 Reset</button>
+
+        <div class="tracer-status" id="tracer-step-counter">Passo 0 di 0</div>
+      </div>
+
+      <div class="grid-2col">
+        <!-- Lato Sinistro: Codice Python con Evidenziazione Riga Attiva -->
+        <div class="card">
+          <h3 class="card-title">
+            <span>📜 Codice Python in Esecuzione</span>
+            <span class="badge-pill" id="tracer-algo-name">.items() report</span>
+          </h3>
+
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>📏 Guida Indentazione Python:</span>
+            <span style="font-family:var(--font-mono); color:var(--color-primary); background:var(--bg-surface-subtle); padding:0.15rem 0.5rem; border-radius:4px; border:1px solid var(--border-subtle);"><span class="indent-guide" style="width:auto; border:none; letter-spacing:0.1em; color:var(--color-primary);">····</span> = 4 spazi (1 rientro di blocco)</span>
+          </div>
+          
+          <div id="tracer-code-box" class="code-box">
+            <!-- Linee di codice iniettate con stato attivo -->
+          </div>
+
+          <!-- Ispettore Variabili Locali in Memoria -->
+          <div class="var-inspector">
+            <span style="font-size:0.85rem; color:var(--text-muted); align-self:center; font-weight:700;">MEMORIA LOCALE:</span>
+            <div id="var-inspector-pills" style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+              <!-- Variabili iniettate dinamicamente -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Lato Destro: Tracing Visivo sul Dizionario e Output Console -->
+        <div class="card">
+          <h3 class="card-title">
+            <span>🧭 Puntatore del Ciclo sui Dati</span>
+            <span id="tracer-explanation-badge" class="badge-pill">In attesa di avvio</span>
+          </h3>
+
+          <div style="flex:1; overflow-y:auto; max-height:260px; margin-bottom:1rem;">
+            <table class="dict-memory-table">
+              <thead>
+                <tr>
+                  <th style="width:28px;"></th>
+                  <th>Chiave</th>
+                  <th>Descrizione</th>
+                  <th>Giacenza</th>
+                  <th>Prezzo Unitario</th>
+                  <th>Valore Rigo</th>
+                </tr>
+              </thead>
+              <tbody id="tracer-dict-body">
+                <!-- Righe evidenziate dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Console di output aziendale -->
+          <div>
+            <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.3rem;">Output generato (Console):</div>
+            <div id="tracer-console-output" class="code-box" style="min-height:90px; max-height:130px; overflow-y:auto; color:#a7f3d0;">
+              > Pronto. Tocca 'Passo Successivo' per iniziare il tracciamento...
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SCHEDA 4: PALESTRA ANTI-MISCONCEZIONI (TROVA E CORREGGI IL BUG)
+         ====================================================================== -->
+    <section id="tab-miscon" class="tab-content" role="tabpanel">
+      <div class="module-header">
+        <div>
+          <h2>4. Palestra Anti-Misconcezioni: I 6 Bug Tipici</h2>
+          <p>Metodo PRIMM (Predict & Run): analizza il codice errato, prova a prevedere il comportamento, sperimenta l'errore Python e scopri la correzione logica corretta.</p>
+        </div>
+        <div class="target-badge">Obiettivo 5: Diagnosi & Correzione Errori</div>
+      </div>
+
+      <!-- Selettore delle 6 Misconcezioni del README -->
+      <div class="miscon-selector" role="tablist">
+        <button class="miscon-btn active" data-miscon="0">
+          <span class="miscon-tag">Bug #1</span>
+          <span>Indice numerico <code>d[0]</code></span>
+        </button>
+        <button class="miscon-btn" data-miscon="1">
+          <span class="miscon-tag">Bug #2</span>
+          <span>Chiave vs Valore <code>d[val]</code></span>
+        </button>
+        <button class="miscon-btn" data-miscon="2">
+          <span class="miscon-tag">Bug #3</span>
+          <span>KeyError inatteso</span>
+        </button>
+        <button class="miscon-btn" data-miscon="3">
+          <span class="miscon-tag">Bug #4</span>
+          <span>Sovrascrittura accidentale</span>
+        </button>
+        <button class="miscon-btn" data-miscon="4">
+          <span class="miscon-tag">Bug #5</span>
+          <span>Cancellazione durante il ciclo</span>
+        </button>
+        <button class="miscon-btn" data-miscon="5">
+          <span class="miscon-tag">Bug #6</span>
+          <span>Unpacking errato con .items()</span>
+        </button>
+      </div>
+
+      <!-- Card Interattiva PRIMM -->
+      <div class="primm-box" id="primm-content-box">
+        <!-- Caricato dinamicamente in base alla misconcezione selezionata -->
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SCHEDA 5: MINI-GESTIONALE CASSA & MAGAZZINO PMI
+         ====================================================================== -->
+    <section id="tab-pos" class="tab-content" role="tabpanel">
+      <div class="module-header">
+        <div>
+          <h2>5. Strutture Dati Combinate: Gestionale Cassa & Inventario PMI</h2>
+          <p>Un'applicazione completa per una PMI: un <strong>dizionario di dizionari</strong> per le giacenze di magazzino e una <strong>lista di dizionari</strong> per le righe dello scontrino di cassa, con IVA 22% e sconto 10% sopra i 50 €.</p>
+        </div>
+        <div class="target-badge">Obiettivo 4: Strutture Dati Combinate</div>
+      </div>
+
+      <div class="pos-layout">
+        <!-- Catalogo Magazzino con pulsanti vendita rapidi per LIM -->
+        <div class="card">
+          <h3 class="card-title">
+            <span>🏬 Catalogo Articoli & Scorte in Tempo Reale</span>
+            <span class="badge-pill">Dizionario Python</span>
+          </h3>
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0;">
+            Tocca "Vendi (+1)" per scaricare l'articolo dal dizionario magazzino e aggiungerlo alla lista scontrino.
+          </p>
+
+          <div id="pos-catalog-container" style="display:flex; flex-direction:column; gap:0.6rem; max-height:480px; overflow-y:auto; padding-right:0.4rem;">
+            <!-- Articoli caricati dinamicamente -->
+          </div>
+        </div>
+
+        <!-- Scontrino Fiscale & Dati Combinati -->
+        <div class="card">
+          <h3 class="card-title">
+            <span>🧾 Registratore di Cassa (Scontrino Fiscale)</span>
+            <button class="btn btn-sm btn-danger" id="pos-btn-clear-cart">Svuota Carrello</button>
+          </h3>
+
+          <div class="scontrino-ticket" id="pos-receipt">
+            <div style="text-align:center; font-weight:800; font-size:1.1rem; margin-bottom:0.2rem;">SMART RETAIL S.R.L.</div>
+            <div style="text-align:center; font-size:0.8rem; color:#4b5563;">Lab6 Terza SIA — P.IVA 01234567890</div>
+            <div class="scontrino-divider"></div>
+            
+            <div id="receipt-items-list">
+              <div style="text-align:center; color:#6b7280; font-style:italic; padding:1.5rem 0;">
+                Nessun articolo a scontrino.<br>Tocca un articolo dal catalogo per iniziare la vendita.
+              </div>
+            </div>
+
+            <div class="scontrino-divider"></div>
+            <div class="scontrino-line">
+              <span>Totale Imponibile netto:</span>
+              <span id="receipt-netto">€ 0.00</span>
+            </div>
+            <div class="scontrino-line">
+              <span>IVA (22%):</span>
+              <span id="receipt-iva">€ 0.00</span>
+            </div>
+            <div class="scontrino-line" id="receipt-sconto-row" style="display:none; color:#16a34a; font-weight:700;">
+              <span>Sconto Fedeltà (> 50€) -10%:</span>
+              <span id="receipt-sconto">- € 0.00</span>
+            </div>
+            <div class="scontrino-totale">
+              <span>TOTALE DOVUTO:</span>
+              <span id="receipt-totale">€ 0.00</span>
+            </div>
+          </div>
+
+          <!-- Pulsante di emissione e ispezione dati -->
+          <div style="display:flex; gap:0.6rem; margin-top:1rem;">
+            <button class="btn btn-success" id="pos-btn-checkout" style="flex:1;">
+              ✅ Emetti Scontrino & Scarica Scorte
+            </button>
+            <button class="btn" id="pos-btn-view-datastruct">
+              🔍 Ispeziona Struttura Python
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         SCHEDA 6: TUTOR SOCRATICO (SIMULATORE GEM S1 & S3)
+         ====================================================================== -->
+    <section id="tab-tutor" class="tab-content" role="tabpanel">
+      <div class="module-header">
+        <div>
+          <h2>6. Tutor Socratico Integrato (Simulatore Gem S1 & S3)</h2>
+          <p>Secondo il <strong>Patto d'Aula con l'IA</strong>, l'assistente non deve darti la pappa pronta! Questo simulatore risponde con il metodo socratico: UNA domanda alla volta per guidarti a capire senza rivelare la soluzione.</p>
+        </div>
+        <div class="target-badge">Obiettivo 6: Uso Responsabile dell'IA</div>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-messages" id="chat-messages-box">
+          <div class="chat-bubble bot">
+            <div class="bot-header">
+              <span>🤖</span> <strong>Gem S1 — Tutor Socratico dei Dizionari</strong>
+            </div>
+            Ciao! Sono il tuo tutor socratico di informatica. Aiuto a capire come ragionano i dizionari in Python senza scrivere il codice al posto tuo.<br><br>
+            Di cosa vuoi parlare? Scegli una delle situazioni guidate qui sotto oppure tocca una domanda per analizzare un errore!
+          </div>
+        </div>
+
+        <!-- Chip di risposta rapida per facilitare l'uso alla LIM -->
+        <div class="chat-prompt-chips" id="chat-chips-container">
+          <button class="chip-btn" data-chat-act="cos_e_chiave">Cos'è una chiave in parole semplici?</button>
+          <button class="chip-btn" data-chat-act="perche_keyerror">Perché Python mi dà KeyError?</button>
+          <button class="chip-btn" data-chat-act="differenza_lista">Che differenza c'è tra lista e dizionario?</button>
+          <button class="chip-btn" data-chat-act="get_vs_quadre">Quando usare .get() invece delle quadre?</button>
+          <button class="chip-btn" data-chat-act="chiedi_soluzione">"Scrivimi tu il programma completo per l'esercizio!"</button>
+          <button class="chip-btn" data-chat-act="reset_chat">🔄 Ricomincia conversazione</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       MODALE INFORMATIVA OBIETTIVI DELL'UdA
+       ======================================================================== -->
+  <div class="modal-overlay" id="goals-modal">
+    <div class="modal-card">
+      <button class="modal-close" id="btn-close-goals" aria-label="Chiudi finestra">&times;</button>
+      <h2 style="margin-top:0; color:var(--color-primary); display:flex; align-items:center; gap:0.5rem;">
+        <span>🎯</span> UdA: Dizionari in Python (Gestione Magazzino e Listino)
+      </h2>
+      <p style="color:var(--text-secondary);">
+        Kit didattico per la classe <strong>terza SIA</strong> (8 ore totali). Gli obiettivi osservabili verificati in questo laboratorio sono:
+      </p>
+
+      <ol style="padding-left:1.25rem; line-height:1.7; color:var(--text-primary);">
+        <li><strong>Modellazione economico-aziendale:</strong> rappresentare anagrafiche articoli, listini e giacenze con tipi di chiavi (str) e valori (numerici o complessi) appropriati.</li>
+        <li><strong>Operazioni CRUD sicure:</strong> lettura, inserimento, aggiornamento e cancellazione gestendo chiavi inesistenti con l'operatore <code>in</code> e il metodo <code>.get()</code>.</li>
+        <li><strong>Iterazione e reportistica:</strong> scorrere il dizionario con <code>.keys()</code>, <code>.values()</code> e <code>.items()</code> per calcolare il valore totale dell'inventario e filtrare articoli sottoscorta.</li>
+        <li><strong>Strutture combinate elementari:</strong> gestire liste di dizionari (scontrini di cassa) integrate con il catalogo prodotti.</li>
+        <li><strong>Diagnosi e isolamento errori:</strong> riconoscere ed eliminare <code>KeyError</code>, sovrascritture accidentali e alterazioni della dimensione durante il ciclo (<code>RuntimeError</code>).</li>
+        <li><strong>Interazione responsabile con l'IA:</strong> dialogare con tutor socratici documentando i passaggi logici senza delegare la scrittura passiva del codice.</li>
+      </ol>
+
+      <div style="margin-top:1.5rem; text-align:right;">
+        <button class="btn btn-primary" id="btn-modal-understand">Ho capito, torna al laboratorio</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODALE ISPEZIONE STRUTTURA COMBINATA
+       ======================================================================== -->
+  <div class="modal-overlay" id="datastruct-modal">
+    <div class="modal-card">
+      <button class="modal-close" id="btn-close-datastruct">&times;</button>
+      <h3 style="margin-top:0; color:var(--color-primary);">Struttura Dati Python in RAM (Combinata)</h3>
+      <p style="font-size:0.9rem; color:var(--text-secondary);">
+        Ecco come Python memorizza internamente le due strutture collegate: il <strong>dizionario delle giacenze</strong> e la <strong>lista di dizionari dello scontrino</strong>.
+      </p>
+      <div id="datastruct-code-view" class="code-box" style="max-height:400px; overflow-y:auto;">
+        <!-- Popolato dinamicamente -->
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    Laboratorio Didattico Interattivo • Terza SIA • Conforme al Kit Formatore Lab6 • Nessuna dipendenza esterna (100% Offline)
+  </footer>
+
+  <!-- ========================================================================
+       LOGICA JAVASCRIPT AUTONOMA (NESSUNA LIBRERIA ESTERNA)
+       ======================================================================== -->
+  <script>
+    /* ==========================================================================
+       DATI DI STATO GLOBALI (MODELLO AZIENDALE)
+       ========================================================================== */
+    const INITIAL_CATALOG = {
+      "ART-01": { desc: "Mouse Ottico USB", prezzo: 12.50, qta: 25, scorta_min: 10 },
+      "ART-02": { desc: "Tastiera Meccanica", prezzo: 45.00, qta: 8, scorta_min: 10 },
+      "ART-03": { desc: "Cavo HDMI 2.0 2m", prezzo: 6.50, qta: 4, scorta_min: 15 },
+      "ART-04": { desc: "Hub USB-C 4 Porte", prezzo: 22.00, qta: 18, scorta_min: 5 }
+    };
+
+    // Copia mutabile dello stato di magazzino
+    let warehouse = JSON.parse(JSON.stringify(INITIAL_CATALOG));
+    
+    // Lista di righe per lo scontrino corrente (Struttura Combinata)
+    let cart = [];
+
+    // Parametri fiscali e sconti (in linea con la specifica del corso)
+    const IVA = 0.22;
+    const SOGLIA_SCONTO = 50.0;
+    const SCONTO_PERC = 0.10;
+
+    /* ==========================================================================
+       CONTROLLI ACCESSIBILITÀ LIM & TEMA
+       ========================================================================== */
+    let currentScale = 1.0;
+    const btnFontInc = document.getElementById("btn-font-inc");
+    const btnFontDec = document.getElementById("btn-font-dec");
+    const btnThemeToggle = document.getElementById("btn-theme-toggle");
+    const themeIcon = document.getElementById("theme-icon");
+    const themeText = document.getElementById("theme-text");
+    const btnFullscreen = document.getElementById("btn-fullscreen");
+
+    btnFontInc.addEventListener("click", () => {
+      if (currentScale < 1.35) {
+        currentScale += 0.08;
+        document.documentElement.style.setProperty("--font-scale", currentScale.toFixed(2));
+      }
+    });
+
+    btnFontDec.addEventListener("click", () => {
+      if (currentScale > 0.85) {
+        currentScale -= 0.08;
+        document.documentElement.style.setProperty("--font-scale", currentScale.toFixed(2));
+      }
+    });
+
+    btnThemeToggle.addEventListener("click", () => {
+      document.body.classList.toggle("lim-light-mode");
+      const isLight = document.body.classList.contains("lim-light-mode");
+      themeIcon.textContent = isLight ? "🌙" : "☀️";
+      themeText.textContent = isLight ? "Modo Dark" : "Modo Lavagna";
+    });
+
+    btnFullscreen.addEventListener("click", () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.warn("Fullscreen non supportato:", err);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    /* ==========================================================================
+       GESTIONE SCHEDE (TABS)
+       ========================================================================== */
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const tabContents = document.querySelectorAll(".tab-content");
+
+    tabButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-tab");
+        tabButtons.forEach(b => {
+          b.classList.remove("active");
+          b.setAttribute("aria-selected", "false");
+        });
+        tabContents.forEach(c => c.classList.remove("active"));
+
+        btn.classList.add("active");
+        btn.setAttribute("aria-selected", "true");
+        const activeContent = document.getElementById(targetId);
+        if (activeContent) activeContent.classList.add("active");
+
+        // Azioni specifiche all'apertura della scheda
+        if (targetId === "tab-tracer") {
+          initTracer();
+        } else if (targetId === "tab-miscon") {
+          renderMisconception(currentMisconIndex);
+        } else if (targetId === "tab-pos") {
+          renderPOS();
+        }
+      });
+    });
+
+    /* ==========================================================================
+       GESTIONE MODALE OBIETTIVI
+       ========================================================================== */
+    const goalsModal = document.getElementById("goals-modal");
+    const btnOpenGoals = document.getElementById("btn-open-goals");
+    const btnCloseGoals = document.getElementById("btn-close-goals");
+    const btnModalUnderstand = document.getElementById("btn-modal-understand");
+
+    btnOpenGoals.addEventListener("click", () => goalsModal.classList.add("active"));
+    btnCloseGoals.addEventListener("click", () => goalsModal.classList.remove("active"));
+    btnModalUnderstand.addEventListener("click", () => goalsModal.classList.remove("active"));
+    goalsModal.addEventListener("click", (e) => {
+      if (e.target === goalsModal) goalsModal.classList.remove("active");
+    });
+
+    /* ==========================================================================
+       MODULO 1: MODELLAZIONE DATI & MEMORIA RAM
+       ========================================================================== */
+    let modelViewMode = "nested"; // 'simple' o 'nested'
+
+    function renderModelTab() {
+      // Tabella Excel
+      const tbody = document.getElementById("excel-table-body");
+      tbody.innerHTML = "";
+      for (const [sku, item] of Object.entries(warehouse)) {
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid var(--border-subtle)";
+        tr.innerHTML = `
+          <td style="padding:0.6rem 0.5rem; font-family:var(--font-mono); font-weight:700; color:var(--key-badge-text);">${sku}</td>
+          <td style="padding:0.6rem 0.5rem;">${item.desc}</td>
+          <td style="padding:0.6rem 0.5rem; font-family:var(--font-mono);">€ ${item.prezzo.toFixed(2)}</td>
+          <td style="padding:0.6rem 0.5rem; font-family:var(--font-mono); font-weight:700; ${item.qta <= item.scorta_min ? 'color:var(--color-danger);' : ''}">${item.qta} pz</td>
+          <td style="padding:0.6rem 0.5rem; font-family:var(--font-mono); color:var(--text-muted);">${item.scorta_min} pz</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      // Codice e Slot RAM
+      const codePreview = document.getElementById("model-code-preview");
+      const slotsContainer = document.getElementById("memory-slots-container");
+      slotsContainer.innerHTML = "";
+
+      if (modelViewMode === "simple") {
+        codePreview.innerHTML = `
+<span class="cm"># 1. Modello Semplice: Listino Prezzi (chiave str ➔ prezzo float)</span>
+<span class="var">listino</span> <span class="op">=</span> {
+  <span class="str">"ART-01"</span>: <span class="num">12.50</span>,
+  <span class="str">"ART-02"</span>: <span class="num">45.00</span>,
+  <span class="str">"ART-03"</span>: <span class="num">6.50</span>,
+  <span class="str">"ART-04"</span>: <span class="num">22.00</span>
+}`;
+        for (const [sku, item] of Object.entries(warehouse)) {
+          const row = document.createElement("div");
+          row.className = "dict-row";
+          row.style.display = "flex";
+          row.style.alignItems = "center";
+          row.style.justifyContent = "space-between";
+          row.style.padding = "0.5rem 0.8rem";
+          row.innerHTML = `
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span class="key-badge">🔑 ${sku}</span>
+              <span class="hash-arrow">➔</span>
+              <span class="val-badge">€ ${item.prezzo.toFixed(2)}</span>
+            </div>
+            <span style="font-size:0.8rem; color:var(--text-muted);">${item.desc}</span>
+          `;
+          slotsContainer.appendChild(row);
+        }
+      } else {
+        codePreview.innerHTML = `
+<span class="cm"># 2. Modello Strutturato: Anagrafica & Giacenze (dizionario annidato)</span>
+<span class="var">magazzino</span> <span class="op">=</span> {
+  <span class="str">"ART-01"</span>: {<span class="str">"desc"</span>: <span class="str">"Mouse Ottico"</span>, <span class="str">"prezzo"</span>: <span class="num">12.50</span>, <span class="str">"qta"</span>: <span class="num">25</span>, <span class="str">"scorta_min"</span>: <span class="num">10</span>},
+  <span class="str">"ART-02"</span>: {<span class="str">"desc"</span>: <span class="str">"Tastiera Mecc."</span>, <span class="str">"prezzo"</span>: <span class="num">45.00</span>, <span class="str">"qta"</span>: <span class="num">8</span>, <span class="str">"scorta_min"</span>: <span class="num">10</span>},
+  <span class="str">"ART-03"</span>: {<span class="str">"desc"</span>: <span class="str">"Cavo HDMI"</span>, <span class="str">"prezzo"</span>: <span class="num">6.50</span>, <span class="str">"qta"</span>: <span class="num">4</span>, <span class="str">"scorta_min"</span>: <span class="num">15</span>},
+  <span class="str">"ART-04"</span>: {<span class="str">"desc"</span>: <span class="str">"Hub USB-C"</span>, <span class="str">"prezzo"</span>: <span class="num">22.00</span>, <span class="str">"qta"</span>: <span class="num">18</span>, <span class="str">"scorta_min"</span>: <span class="num">5</span>}
+}`;
+        for (const [sku, item] of Object.entries(warehouse)) {
+          const row = document.createElement("div");
+          row.className = "dict-row";
+          row.style.display = "flex";
+          row.style.alignItems = "center";
+          row.style.justifyContent = "space-between";
+          row.style.padding = "0.5rem 0.8rem";
+          row.innerHTML = `
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span class="key-badge">🔑 ${sku}</span>
+              <span class="hash-arrow">➔</span>
+              <span class="val-badge" style="background:#1e3a5f; color:#93c5fd;">📦 {desc: "${item.desc}", qta: ${item.qta}, min: ${item.scorta_min}}</span>
+            </div>
+            <span style="font-size:0.8rem; font-weight:600; ${item.qta <= item.scorta_min ? 'color:var(--color-danger);' : 'color:var(--color-success);'}">
+              ${item.qta <= item.scorta_min ? '⚠️ Sottoscorta' : '✅ Disponibile'}
+            </span>
+          `;
+          slotsContainer.appendChild(row);
+        }
+      }
+    }
+
+    document.getElementById("btn-toggle-struct-simple").addEventListener("click", () => {
+      modelViewMode = "simple";
+      document.getElementById("btn-toggle-struct-simple").classList.add("btn-primary");
+      document.getElementById("btn-toggle-struct-nested").classList.remove("btn-primary");
+      renderModelTab();
+    });
+    document.getElementById("btn-toggle-struct-nested").addEventListener("click", () => {
+      modelViewMode = "nested";
+      document.getElementById("btn-toggle-struct-nested").classList.add("btn-primary");
+      document.getElementById("btn-toggle-struct-simple").classList.remove("btn-primary");
+      renderModelTab();
+    });
+
+    // Test interattivo di sovrascrittura
+    document.getElementById("btn-demo-test-overwrite").addEventListener("click", () => {
+      const key = document.getElementById("demo-key-input").value.trim();
+      const val = parseInt(document.getElementById("demo-val-input").value, 10) || 0;
+      const feedback = document.getElementById("demo-overwrite-feedback");
+
+      if (!key) {
+        feedback.innerHTML = `<span style="color:var(--color-danger);">Inserisci una chiave valida!</span>`;
+        return;
+      }
+
+      if (warehouse[key]) {
+        const oldVal = warehouse[key].qta;
+        warehouse[key].qta = val;
+        feedback.innerHTML = `
+          <span style="color:var(--color-warning); font-weight:700;">🔄 SOVRASCRITTURA CONFERMATA:</span> 
+          La chiave <code>${key}</code> esisteva già con giacenza <strong>${oldVal}</strong>. Non è stato aggiunto un secondo articolo: il valore è stato <strong>rimpiazzato</strong> con <strong>${val}</strong>!
+        `;
+      } else {
+        warehouse[key] = { desc: "Nuovo Articolo Prova", prezzo: 10.00, qta: val, scorta_min: 5 };
+        feedback.innerHTML = `
+          <span style="color:var(--color-success); font-weight:700;">➕ INSERITA NUOVA COPPIA:</span> 
+          La chiave <code>${key}</code> non era presente, quindi è stata aggiunta una nuova cella in memoria.
+        `;
+      }
+      renderModelTab();
+      renderCRUDTable();
+    });
+
+    /* ==========================================================================
+       MODULO 2: CRUD & ACCESSO SICURO
+       ========================================================================== */
+    function renderCRUDTable() {
+      const tbody = document.getElementById("crud-memory-body");
+      tbody.innerHTML = "";
+      for (const [sku, item] of Object.entries(warehouse)) {
+        const tr = document.createElement("tr");
+        tr.className = "dict-row";
+        tr.id = `crud-row-${sku}`;
+        tr.innerHTML = `
+          <td style="width:130px;"><span class="key-badge">🔑 "${sku}"</span></td>
+          <td style="width:30px;"><span class="hash-arrow">➔</span></td>
+          <td>
+            <div style="font-family:var(--font-mono); font-size:0.9rem;">
+              <strong>${item.desc}</strong> | Prezzo: <strong>€ ${item.prezzo.toFixed(2)}</strong> | Giacenza: <strong style="${item.qta <= item.scorta_min ? 'color:var(--color-danger);' : ''}">${item.qta}</strong> (min ${item.scorta_min})
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    const crudFeedback = document.getElementById("crud-feedback-container");
+    const crudCodeDisplay = document.getElementById("crud-code-display");
+
+    document.getElementById("crud-btn-read-ok").addEventListener("click", () => {
+      crudCodeDisplay.innerHTML = `
+<span class="var">articolo</span> <span class="op">=</span> <span class="var">magazzino</span>[<span class="str">"ART-01"</span>]
+<span class="fn">print</span>(<span class="var">articolo</span>[<span class="str">"desc"</span>], <span class="var">articolo</span>[<span class="str">"prezzo"</span>])`;
+      highlightRow("crud-row-ART-01");
+      crudFeedback.innerHTML = `
+        <div style="padding:0.85rem; background:var(--color-success-bg); border:1px solid var(--color-success); border-radius:var(--radius-md); color:var(--color-success);">
+          ✅ <strong>Accesso riuscito:</strong> Chiave <code>"ART-01"</code> trovata in O(1)! Valore estratto: <em>${warehouse["ART-01"].desc} (€ ${warehouse["ART-01"].prezzo.toFixed(2)})</em>.
+        </div>`;
+    });
+
+    document.getElementById("crud-btn-read-fail").addEventListener("click", () => {
+      crudCodeDisplay.innerHTML = `
+<span class="var">articolo</span> <span class="op">=</span> <span class="var">magazzino</span>[<span class="str">"ART-99"</span>]  <span class="cm"># CRASH IMMEDIATO!</span>`;
+      crudFeedback.innerHTML = `
+        <div class="traceback-card">
+          <div class="tb-header">❌ Traceback (most recent call last):</div>
+          <div>&nbsp;&nbsp;File "&lt;stdin&gt;", line 1, in &lt;module&gt;</div>
+          <div style="font-weight:700; color:#ef4444; margin-top:0.4rem;">KeyError: 'ART-99'</div>
+          <div style="margin-top:0.6rem; font-size:0.85rem; color:#fca5a5; line-height:1.4;">
+            <strong>Spiegazione didattica:</strong> Quando usi le parentesi quadre <code>magazzino["chiave"]</code>, se la chiave non esiste Python NON restituisce <code>None</code> o <code>0</code>, ma blocca il programma sollevando un <code>KeyError</code>!
+          </div>
+        </div>`;
+    });
+
+    document.getElementById("crud-btn-check-in").addEventListener("click", () => {
+      crudCodeDisplay.innerHTML = `
+<span class="kw">if</span> <span class="str">"ART-99"</span> <span class="kw">in</span> <span class="var">magazzino</span>:
+    <span class="fn">print</span>(<span class="var">magazzino</span>[<span class="str">"ART-99"</span>])
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"Articolo non presente a catalogo!"</span>)`;
+      crudFeedback.innerHTML = `
+        <div style="padding:0.85rem; background:var(--color-success-bg); border:1px solid var(--color-success); border-radius:var(--radius-md); color:var(--color-success);">
+          🛡️ <strong>Accesso Sicuro con operatore 'in':</strong><br>
+          L'espressione <code>"ART-99" in magazzino</code> restituisce <code>False</code> in modo istantaneo.<br>
+          Il programma evita il KeyError ed esegue il ramo <code>else</code> in sicurezza!
+        </div>`;
+    });
+
+    document.getElementById("crud-btn-get-default").addEventListener("click", () => {
+      crudCodeDisplay.innerHTML = `
+<span class="cm"># .get(chiave, valore_di_fallback)</span>
+<span class="var">prezzo</span> <span class="op">=</span> <span class="var">magazzino</span>.<span class="fn">get</span>(<span class="str">"ART-99"</span>, <span class="str">"Non trovato"</span>)
+<span class="fn">print</span>(<span class="var">prezzo</span>)  <span class="cm"># Stampa: Non trovato (senza crash!)</span>`;
+      crudFeedback.innerHTML = `
+        <div style="padding:0.85rem; background:var(--color-success-bg); border:1px solid var(--color-success); border-radius:var(--radius-md); color:var(--color-success);">
+          🛡️ <strong>Metodo .get():</strong><br>
+          Se la chiave esiste, restituisce il suo valore. Se manca, non crasha ma restituisce il fallback indicato (<code>"Non trovato"</code> o <code>0</code>).
+        </div>`;
+    });
+
+    document.getElementById("crud-btn-insert").addEventListener("click", () => {
+      warehouse["ART-05"] = { desc: "Webcam Full HD", prezzo: 39.90, qta: 12, scorta_min: 6 };
+      renderCRUDTable();
+      highlightRow("crud-row-ART-05");
+      crudCodeDisplay.innerHTML = `
+<span class="var">magazzino</span>[<span class="str">"ART-05"</span>] <span class="op">=</span> {
+    <span class="str">"desc"</span>: <span class="str">"Webcam Full HD"</span>,
+    <span class="str">"prezzo"</span>: <span class="num">39.90</span>,
+    <span class="str">"qta"</span>: <span class="num">12</span>,
+    <span class="str">"scorta_min"</span>: <span class="num">6</span>
+}`;
+      crudFeedback.innerHTML = `
+        <div style="padding:0.85rem; background:var(--color-success-bg); border:1px solid var(--color-success); border-radius:var(--radius-md); color:var(--color-success);">
+          ➕ <strong>Articolo Aggiunto:</strong> <code>ART-05</code> inserito con successo. La lunghezza del dizionario <code>len(magazzino)</code> è ora ${Object.keys(warehouse).length}.
+        </div>`;
+    });
+
+    document.getElementById("crud-btn-delete").addEventListener("click", () => {
+      if (warehouse["ART-03"]) {
+        delete warehouse["ART-03"];
+        renderCRUDTable();
+        crudCodeDisplay.innerHTML = `
+<span class="kw">del</span> <span class="var">magazzino</span>[<span class="str">"ART-03"</span>]  <span class="cm"># Rimuove la coppia chiave-valore</span>`;
+        crudFeedback.innerHTML = `
+          <div style="padding:0.85rem; background:var(--color-warning-bg); border:1px solid var(--color-warning); border-radius:var(--radius-md); color:var(--color-warning);">
+            🗑️ <strong>Cancellazione completata:</strong> La chiave <code>ART-03</code> e i suoi dati sono stati deallocati dalla memoria.
+          </div>`;
+      } else {
+        crudFeedback.innerHTML = `
+          <div class="traceback-card">
+            <div class="tb-header">❌ KeyError durante del:</div>
+            <div>del magazzino['ART-03']</div>
+            <div style="margin-top:0.4rem;">Tentare di eliminare una chiave inesistente con <code>del</code> genera un <strong>KeyError</strong>! Per cancellare in sicurezza usa <code>magazzino.pop("ART-03", None)</code>.</div>
+          </div>`;
+      }
+    });
+
+    document.getElementById("crud-custom-run").addEventListener("click", () => {
+      const key = document.getElementById("crud-custom-key").value.trim().toUpperCase();
+      const action = document.getElementById("crud-custom-action").value;
+
+      if (!key) {
+        alert("Inserisci un codice chiave da testare!");
+        return;
+      }
+
+      if (action === "quadre") {
+        crudCodeDisplay.innerHTML = `<span class="var">res</span> <span class="op">=</span> <span class="var">magazzino</span>[<span class="str">"${key}"</span>]`;
+        if (warehouse[key]) {
+          highlightRow(`crud-row-${key}`);
+          crudFeedback.innerHTML = `<div style="padding:0.85rem; background:var(--color-success-bg); border:1px solid var(--color-success); border-radius:var(--radius-md); color:var(--color-success);">✅ Trovato: ${warehouse[key].desc} (${warehouse[key].qta} pz).</div>`;
+        } else {
+          crudFeedback.innerHTML = `
+            <div class="traceback-card">
+              <div class="tb-header">❌ KeyError: '${key}'</div>
+              <div>La chiave '${key}' non esiste nelle chiavi attuali: [${Object.keys(warehouse).map(k=>`'${k}'`).join(", ")}]</div>
+            </div>`;
+        }
+      } else if (action === "in") {
+        const found = key in warehouse;
+        crudCodeDisplay.innerHTML = `<span class="var">esiste</span> <span class="op">=</span> <span class="str">"${key}"</span> <span class="kw">in</span> <span class="var">magazzino</span>  <span class="cm"># Restituisce ${found ? "True" : "False"}</span>`;
+        crudFeedback.innerHTML = `<div style="padding:0.85rem; background:${found ? 'var(--color-success-bg)' : 'var(--color-warning-bg)'}; border:1px solid ${found ? 'var(--color-success)' : 'var(--color-warning)'}; border-radius:var(--radius-md); color:${found ? 'var(--color-success)' : 'var(--color-warning)'}; font-weight:700;">Risultato: '${key}' in magazzino ➔ ${found ? "True (Presente)" : "False (Assente)"}</div>`;
+      } else if (action === "get") {
+        const res = warehouse[key] ? warehouse[key].desc : "Nessun Articolo Trovato";
+        crudCodeDisplay.innerHTML = `<span class="var">res</span> <span class="op">=</span> <span class="var">magazzino</span>.<span class="fn">get</span>(<span class="str">"${key}"</span>, <span class="str">"Nessun Articolo Trovato"</span>)`;
+        crudFeedback.innerHTML = `<div style="padding:0.85rem; background:var(--color-success-bg); border:1px solid var(--color-success); border-radius:var(--radius-md); color:var(--color-success);">Metodo .get(): '${res}' (nessun crash!)</div>`;
+      } else if (action === "del") {
+        if (warehouse[key]) {
+          delete warehouse[key];
+          renderCRUDTable();
+          crudCodeDisplay.innerHTML = `<span class="kw">del</span> <span class="var">magazzino</span>[<span class="str">"${key}"</span>]`;
+          crudFeedback.innerHTML = `<div style="padding:0.85rem; background:var(--color-warning-bg); border:1px solid var(--color-warning); border-radius:var(--radius-md); color:var(--color-warning);">Articolo ${key} eliminato.</div>`;
+        } else {
+          crudFeedback.innerHTML = `
+            <div class="traceback-card">
+              <div class="tb-header">❌ KeyError: '${key}'</div>
+              <div>Impossibile eliminare una chiave assente con del!</div>
+            </div>`;
+        }
+      }
+    });
+
+    document.getElementById("crud-reset-dict").addEventListener("click", () => {
+      warehouse = JSON.parse(JSON.stringify(INITIAL_CATALOG));
+      renderCRUDTable();
+      renderModelTab();
+      crudFeedback.innerHTML = `<div style="padding:0.85rem; background:var(--color-success-bg); border:1px solid var(--color-success); border-radius:var(--radius-md); color:var(--color-success);">Dizionario ripristinato ai 4 articoli di default.</div>`;
+    });
+
+    function highlightRow(rowId) {
+      document.querySelectorAll(".dict-row").forEach(r => r.classList.remove("highlight"));
+      const r = document.getElementById(rowId);
+      if (r) {
+        r.classList.add("highlight");
+        setTimeout(() => r.classList.remove("highlight"), 2200);
+      }
+    }
+
+    /* ==========================================================================
+       MODULO 3: TRACCIATORE DEI CICLI PASSO-PASSO (.keys, .values, .items)
+       ========================================================================== */
+    let currentAlgo = "items"; // 'items', 'keys', 'values'
+    let tracerSteps = [];
+    let currentStepIdx = 0;
+    let autoPlayTimer = null;
+
+    // Configurazione algoritmi didattici
+    const TRACER_CONFIG = {
+      items: {
+        title: "Report Inventario & Sottoscorta (.items())",
+        codeLines: [
+          '<span class="var">valore_totale</span> <span class="op">=</span> <span class="num">0.0</span>',
+          '<span class="var">sottoscorta</span> <span class="op">=</span> []',
+          '<span class="kw">for</span> <span class="var">codice</span>, <span class="var">info</span> <span class="kw">in</span> <span class="var">magazzino</span>.<span class="fn">items</span>():',
+          '    <span class="var">val_rigo</span> <span class="op">=</span> <span class="var">info</span>[<span class="str">"prezzo"</span>] <span class="op">*</span> <span class="var">info</span>[<span class="str">"qta"</span>]',
+          '    <span class="var">valore_totale</span> <span class="op">=</span> <span class="var">valore_totale</span> <span class="op">+</span> <span class="var">val_rigo</span>',
+          '    <span class="kw">if</span> <span class="var">info</span>[<span class="str">"qta"</span>] <span class="op">&lt;=</span> <span class="var">info</span>[<span class="str">"scorta_min"</span>]:',
+          '        <span class="var">sottoscorta</span>.<span class="fn">append</span>(<span class="var">codice</span>)',
+          '<span class="fn">print</span>(<span class="str">"Valore Totale:"</span>, <span class="var">valore_totale</span>)',
+          '<span class="fn">print</span>(<span class="str">"Articoli da riordinare:"</span>, <span class="var">sottoscorta</span>)'
+        ]
+      },
+      keys: {
+        title: "Elenco Articoli a Catalogo (.keys())",
+        codeLines: [
+          '<span class="fn">print</span>(<span class="str">"=== ELENCO ARTICOLI ==="</span>)',
+          '<span class="kw">for</span> <span class="var">codice</span> <span class="kw">in</span> <span class="var">magazzino</span>.<span class="fn">keys</span>():',
+          '    <span class="var">descrizione</span> <span class="op">=</span> <span class="var">magazzino</span>[<span class="var">codice</span>][<span class="str">"desc"</span>]',
+          '    <span class="fn">print</span>(<span class="str">"SKU:"</span>, <span class="var">codice</span>, <span class="str">"-"</span>, <span class="var">descrizione</span>)'
+        ]
+      },
+      values: {
+        title: "Totale Pezzi Fisici a Magazzino (.values())",
+        codeLines: [
+          '<span class="var">totale_pezzi</span> <span class="op">=</span> <span class="num">0</span>',
+          '<span class="kw">for</span> <span class="var">dati</span> <span class="kw">in</span> <span class="var">magazzino</span>.<span class="fn">values</span>():',
+          '    <span class="var">totale_pezzi</span> <span class="op">=</span> <span class="var">totale_pezzi</span> <span class="op">+</span> <span class="var">dati</span>[<span class="str">"qta"</span>]',
+          '<span class="fn">print</span>(<span class="str">"Pezzi totali giacenti:"</span>, <span class="var">totale_pezzi</span>)'
+        ]
+      }
+    };
+
+    function buildTracerSteps() {
+      tracerSteps = [];
+      const keys = Object.keys(warehouse);
+
+      if (currentAlgo === "items") {
+        // Step 0: Inizializzazione
+        tracerSteps.push({
+          line: 1,
+          vars: { valore_totale: "0.0", sottoscorta: "[]", codice: "None", info: "None" },
+          activeKey: null,
+          processedKeys: [],
+          output: "> Inizializzazione variabili accumulatore...",
+          badge: "Inizializzazione"
+        });
+        tracerSteps.push({
+          line: 2,
+          vars: { valore_totale: "0.0", sottoscorta: "[]", codice: "None", info: "None" },
+          activeKey: null,
+          processedKeys: [],
+          output: "> Lista sottoscorta creata vuota.",
+          badge: "Inizializzazione"
+        });
+
+        let tot = 0.0;
+        let sott = [];
+        let done = [];
+
+        for (let i = 0; i < keys.length; i++) {
+          const k = keys[i];
+          const info = warehouse[k];
+          const rigo = info.prezzo * info.qta;
+
+          // Intestazione ciclo for
+          tracerSteps.push({
+            line: 3,
+            vars: { valore_totale: `€ ${tot.toFixed(2)}`, sottoscorta: `[${sott.join(", ")}]`, codice: `"${k}"`, info: `{desc: "${info.desc}", ...}` },
+            activeKey: k,
+            processedKeys: [...done],
+            output: `> Giro ${i+1}/${keys.length}: unpacking di .items() in (codice="${k}", info)`,
+            badge: `Giro ${i+1}: Unpacking tupla`
+          });
+
+          // Calcolo val_rigo
+          tracerSteps.push({
+            line: 4,
+            vars: { valore_totale: `€ ${tot.toFixed(2)}`, sottoscorta: `[${sott.join(", ")}]`, codice: `"${k}"`, val_rigo: `€ ${rigo.toFixed(2)}` },
+            activeKey: k,
+            processedKeys: [...done],
+            output: `> Calcolo rigo ${k}: € ${info.prezzo.toFixed(2)} × ${info.qta} pz = € ${rigo.toFixed(2)}`,
+            badge: `Calcolo ${k}`
+          });
+
+          // Aggiornamento totale
+          tot += rigo;
+          tracerSteps.push({
+            line: 5,
+            vars: { valore_totale: `€ ${tot.toFixed(2)}`, sottoscorta: `[${sott.join(", ")}]`, codice: `"${k}"`, val_rigo: `€ ${rigo.toFixed(2)}` },
+            activeKey: k,
+            processedKeys: [...done],
+            output: `> Accumulatore aggiornato: nuovo totale = € ${tot.toFixed(2)}`,
+            badge: `Accumulatore: € ${tot.toFixed(2)}`
+          });
+
+          // Verifica sottoscorta
+          const isUnder = info.qta <= info.scorta_min;
+          tracerSteps.push({
+            line: 6,
+            vars: { valore_totale: `€ ${tot.toFixed(2)}`, sottoscorta: `[${sott.join(", ")}]`, codice: `"${k}"`, "qta <= scorta_min": `${isUnder ? "True ⚠️" : "False"}` },
+            activeKey: k,
+            processedKeys: [...done],
+            output: `> Controllo scorta: ${info.qta} <= ${info.scorta_min} ➔ ${isUnder ? "VERO (sottoscorta!)" : "Falso"}`,
+            badge: isUnder ? `⚠️ Alert Scorta per ${k}` : `Scorta OK per ${k}`
+          });
+
+          if (isUnder) {
+            sott.push(`'${k}'`);
+            tracerSteps.push({
+              line: 7,
+              vars: { valore_totale: `€ ${tot.toFixed(2)}`, sottoscorta: `[${sott.join(", ")}]`, codice: `"${k}"` },
+              activeKey: k,
+              processedKeys: [...done],
+              output: `> Aggiunto '${k}' alla lista di riordino!`,
+              badge: `Append '${k}'`
+            });
+          }
+
+          done.push(k);
+        }
+
+        // Print finali
+        tracerSteps.push({
+          line: 8,
+          vars: { valore_totale: `€ ${tot.toFixed(2)}`, sottoscorta: `[${sott.join(", ")}]` },
+          activeKey: null,
+          processedKeys: [...done],
+          output: `> STAMPA: Valore Totale Inventario: € ${tot.toFixed(2)}`,
+          badge: "Stampa Totale"
+        });
+        tracerSteps.push({
+          line: 9,
+          vars: { valore_totale: `€ ${tot.toFixed(2)}`, sottoscorta: `[${sott.join(", ")}]` },
+          activeKey: null,
+          processedKeys: [...done],
+          output: `> STAMPA: Articoli da riordinare: [${sott.join(", ")}]\n=== REPORT COMPLETATO CON SUCCESSO ===`,
+          badge: "Fine Ciclo"
+        });
+      } else if (currentAlgo === "keys") {
+        tracerSteps.push({
+          line: 1,
+          vars: { magazzino: "{...}" },
+          activeKey: null,
+          processedKeys: [],
+          output: `> === ELENCO ARTICOLI ===`,
+          badge: "Avvio"
+        });
+        const done = [];
+        for (let i = 0; i < keys.length; i++) {
+          const k = keys[i];
+          tracerSteps.push({
+            line: 2,
+            vars: { codice: `"${k}"` },
+            activeKey: k,
+            processedKeys: [...done],
+            output: `> Giro ${i+1}: estrazione chiave .keys() ➔ "${k}"`,
+            badge: `Chiave: ${k}`
+          });
+          tracerSteps.push({
+            line: 3,
+            vars: { codice: `"${k}"`, descrizione: `"${warehouse[k].desc}"` },
+            activeKey: k,
+            processedKeys: [...done],
+            output: `> Accesso a magazzino["${k}"]["desc"] ➔ "${warehouse[k].desc}"`,
+            badge: `Lettura desc per ${k}`
+          });
+          tracerSteps.push({
+            line: 4,
+            vars: { codice: `"${k}"`, descrizione: `"${warehouse[k].desc}"` },
+            activeKey: k,
+            processedKeys: [...done],
+            output: `> Stampa: SKU: ${k} - ${warehouse[k].desc}`,
+            badge: `Stampa ${k}`
+          });
+          done.push(k);
+        }
+      } else if (currentAlgo === "values") {
+        tracerSteps.push({
+          line: 1,
+          vars: { totale_pezzi: "0" },
+          activeKey: null,
+          processedKeys: [],
+          output: `> Inizializzazione: totale_pezzi = 0`,
+          badge: "Inizializzazione"
+        });
+        let sumPz = 0;
+        const done = [];
+        for (let i = 0; i < keys.length; i++) {
+          const k = keys[i];
+          const info = warehouse[k];
+          tracerSteps.push({
+            line: 2,
+            vars: { totale_pezzi: `${sumPz}`, dati: `{qta: ${info.qta}, ...}` },
+            activeKey: k,
+            processedKeys: [...done],
+            output: `> Giro ${i+1}: estrazione valore con .values() (senza chiave!) ➔ ${info.qta} pezzi`,
+            badge: `Valore: ${info.qta} pz`
+          });
+          sumPz += info.qta;
+          tracerSteps.push({
+            line: 3,
+            vars: { totale_pezzi: `${sumPz}`, "dati['qta']": `${info.qta}` },
+            activeKey: k,
+            processedKeys: [...done],
+            output: `> Accumulatore pezzi: ${sumPz - info.qta} + ${info.qta} = ${sumPz}`,
+            badge: `Accumulatore: ${sumPz}`
+          });
+          done.push(k);
+        }
+        tracerSteps.push({
+          line: 4,
+          vars: { totale_pezzi: `${sumPz}` },
+          activeKey: null,
+          processedKeys: [...done],
+          output: `> STAMPA: Pezzi totali giacenti: ${sumPz}\n=== CICLO .values() TERMINATO ===`,
+          badge: "Fine Ciclo"
+        });
+      }
+    }
+
+    function initTracer() {
+      buildTracerSteps();
+      currentStepIdx = 0;
+      renderTracerCode();
+      renderTracerStep();
+    }
+
+    function formatIndentGuides(lineHtml) {
+      // Riconosce gli spazi di indentazione iniziali (4 spazi = 1 livello di blocco, 8 spazi = 2 livelli)
+      const match = lineHtml.match(/^(\s+)/);
+      if (!match) return `<span class="code-text">${lineHtml}</span>`;
+      const numSpaces = match[1].length;
+      const content = lineHtml.slice(numSpaces);
+      const levels = Math.floor(numSpaces / 4);
+      let guidesHtml = "";
+      for (let i = 0; i < levels; i++) {
+        guidesHtml += `<span class="indent-guide" title="Rientro livello ${i + 1}: blocco indentato di 4 spazi">····</span>`;
+      }
+      return `<span class="code-text">${guidesHtml}${content}</span>`;
+    }
+
+    function renderTracerCode() {
+      const cfg = TRACER_CONFIG[currentAlgo];
+      document.getElementById("tracer-algo-name").textContent = cfg.title;
+      const box = document.getElementById("tracer-code-box");
+      box.innerHTML = "";
+      cfg.codeLines.forEach((lineHtml, idx) => {
+        const lineDiv = document.createElement("div");
+        lineDiv.className = "code-line";
+        lineDiv.id = `tracer-code-line-${idx + 1}`;
+        lineDiv.innerHTML = `<span class="code-ln">${idx + 1}</span>${formatIndentGuides(lineHtml)}`;
+        box.appendChild(lineDiv);
+      });
+    }
+
+    function renderTracerStep() {
+      const step = tracerSteps[currentStepIdx];
+      if (!step) return;
+
+      // Aggiorna contatore
+      document.getElementById("tracer-step-counter").textContent = `Passo ${currentStepIdx + 1} di ${tracerSteps.length}`;
+      document.getElementById("tracer-explanation-badge").textContent = step.badge;
+
+      // Evidenzia riga di codice attiva
+      document.querySelectorAll("#tracer-code-box .code-line").forEach(l => l.classList.remove("active"));
+      const activeLine = document.getElementById(`tracer-code-line-${step.line}`);
+      if (activeLine) activeLine.classList.add("active");
+
+      // Ispettore variabili
+      const pillsContainer = document.getElementById("var-inspector-pills");
+      pillsContainer.innerHTML = "";
+      for (const [vName, vVal] of Object.entries(step.vars)) {
+        const p = document.createElement("div");
+        p.className = "var-pill";
+        p.innerHTML = `<span class="var-name">${vName}</span> = <span class="var-val">${vVal}</span>`;
+        pillsContainer.appendChild(p);
+      }
+
+      // Tabella del dizionario tracciato
+      const tbody = document.getElementById("tracer-dict-body");
+      tbody.innerHTML = "";
+      for (const [sku, item] of Object.entries(warehouse)) {
+        const tr = document.createElement("tr");
+        tr.className = "dict-row";
+        const isActive = (step.activeKey === sku);
+        const isProcessed = step.processedKeys.includes(sku);
+
+        if (isActive) tr.classList.add("highlight");
+        if (isProcessed) tr.classList.add("processed");
+        if (item.qta <= item.scorta_min && (isActive || isProcessed)) tr.classList.add("alert-sottoscorta");
+
+        tr.innerHTML = `
+          <td style="text-align:center; font-size:1.1rem;">${isActive ? "👉" : (isProcessed ? "✔" : "")}</td>
+          <td><span class="key-badge">🔑 ${sku}</span></td>
+          <td>${item.desc}</td>
+          <td style="font-weight:700; ${item.qta <= item.scorta_min ? 'color:var(--color-danger);' : ''}">${item.qta} pz</td>
+          <td>€ ${item.prezzo.toFixed(2)}</td>
+          <td style="font-family:var(--font-mono); font-weight:700;">€ ${(item.prezzo * item.qta).toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+
+      // Console
+      const consoleBox = document.getElementById("tracer-console-output");
+      consoleBox.textContent = step.output;
+    }
+
+    // Controlli bottoni stepper
+    document.getElementById("step-next").addEventListener("click", () => {
+      if (currentStepIdx < tracerSteps.length - 1) {
+        currentStepIdx++;
+        renderTracerStep();
+      }
+    });
+    document.getElementById("step-prev").addEventListener("click", () => {
+      if (currentStepIdx > 0) {
+        currentStepIdx--;
+        renderTracerStep();
+      }
+    });
+    document.getElementById("step-first").addEventListener("click", () => {
+      currentStepIdx = 0;
+      renderTracerStep();
+    });
+    document.getElementById("step-last").addEventListener("click", () => {
+      currentStepIdx = tracerSteps.length - 1;
+      renderTracerStep();
+    });
+    document.getElementById("step-reset").addEventListener("click", () => {
+      if (autoPlayTimer) clearInterval(autoPlayTimer);
+      initTracer();
+    });
+    document.getElementById("step-autoplay").addEventListener("click", () => {
+      if (autoPlayTimer) {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+        document.getElementById("step-autoplay").textContent = "⏯ Auto";
+      } else {
+        document.getElementById("step-autoplay").textContent = "⏸ Pausa";
+        autoPlayTimer = setInterval(() => {
+          if (currentStepIdx < tracerSteps.length - 1) {
+            currentStepIdx++;
+            renderTracerStep();
+          } else {
+            clearInterval(autoPlayTimer);
+            autoPlayTimer = null;
+            document.getElementById("step-autoplay").textContent = "⏯ Auto";
+          }
+        }, 1200);
+      }
+    });
+
+    // Scelta algoritmo
+    document.getElementById("tracer-algo-items").addEventListener("click", (e) => {
+      currentAlgo = "items";
+      setActiveAlgoBtn(e.target);
+      initTracer();
+    });
+    document.getElementById("tracer-algo-keys").addEventListener("click", (e) => {
+      currentAlgo = "keys";
+      setActiveAlgoBtn(e.target);
+      initTracer();
+    });
+    document.getElementById("tracer-algo-values").addEventListener("click", (e) => {
+      currentAlgo = "values";
+      setActiveAlgoBtn(e.target);
+      initTracer();
+    });
+
+    function setActiveAlgoBtn(btn) {
+      document.querySelectorAll("#tab-tracer .tracer-controls ~ div, #tab-tracer button").forEach(b => {
+        if (b.id && b.id.startsWith("tracer-algo-")) b.classList.remove("active");
+      });
+      btn.classList.add("active");
+    }
+
+    /* ==========================================================================
+       MODULO 4: PALESTRA ANTI-MISCONCEZIONI (I 6 ERRORI TIPICI)
+       ========================================================================== */
+    const MISCONCEPTIONS_DATA = [
+      {
+        id: 0,
+        title: "Bug 1: Confusione tra indice posizionale numerico e chiave (magazzino[0])",
+        tag: "Indice vs Chiave",
+        snippet: `magazzino = {"ART-01": 12.50, "ART-02": 45.00}\nprimo_articolo = magazzino[0]  # Lo studente vuole il 1° elemento`,
+        question: "Cosa succede quando esegui magazzino[0]?",
+        options: [
+          { text: "Restituisce il primo elemento inserito: 12.50", correct: false, reason: "Errato! I dizionari non sono liste indicizzate numericamente da 0 a N-1." },
+          { text: "Lancia KeyError: 0 perché '0' non è presente come chiave nel dizionario", correct: true, reason: "Esatto! Nelle parentesi quadre Python cerca letteralmente la chiave '0'. Se le chiavi sono stringhe ('ART-01'), 0 non esiste!" },
+          { text: "Restituisce None senza errori", correct: false, reason: "Errato! L'accesso con quadre non restituisce None quando la chiave manca, genera un'eccezione bloccante." }
+        ],
+        traceback: "KeyError: 0\n  File 'script.py', line 2, in <module>\n    primo_articolo = magazzino[0]",
+        explanation: "<strong>Misconcezione radicata:</strong> pensare che il dizionario si comporti come una lista. Nei dizionari le posizioni non esistono come numeri progressivi: l'accesso avviene SOLO tramite le sue chiavi dichiarate.",
+        fixCode: `# Soluzione corretta:\n# 1. Se conosci il codice SKU, accedi per chiave:\nprezzo = magazzino["ART-01"]\n\n# 2. Se vuoi iterare senza conoscere le chiavi in anticipo:\nfor codice, prezzo in magazzino.items():\n    print(codice, prezzo)`
+      },
+      {
+        id: 1,
+        title: "Bug 2: Confusione tra Chiave e Valore (magazzino[valore])",
+        tag: "Chiave vs Valore",
+        snippet: `listino = {"ART-01": 12.50, "ART-02": 45.00}\n# Cerco l'articolo che costa 12.50:\ncodice = listino[12.50]`,
+        question: "Cosa produrrà listino[12.50]?",
+        options: [
+          { text: "Restituisce la chiave corrispondente: 'ART-01'", correct: false, reason: "Errato! Il dizionario è una funzione unidirezionale: da Chiave ➔ Valore, mai il contrario." },
+          { text: "Solleva un KeyError: 12.50", correct: true, reason: "Corretto! Python cerca 12.50 nel set delle CHIAVI, dove ci sono solo stringhe 'ART-01' e 'ART-02'." },
+          { text: "Restituisce True", correct: false, reason: "Errato! Non stiamo usando l'operatore 'in'." }
+        ],
+        traceback: "KeyError: 12.5\n  File 'script.py', line 2, in <module>\n    codice = listino[12.50]",
+        explanation: "<strong>Misconcezione:</strong> credere che le parentesi quadre cerchino su tutto il dizionario. Le quadre interrogano unicamente le chiavi. Per trovare una chiave a partire dal valore devi scorrere le coppie con <code>.items()</code>.",
+        fixCode: `# Soluzione: scansione inversa tramite .items()\nprezzo_cercato = 12.50\ncodice_trovato = None\nfor sku, prezzo in listino.items():\n    if prezzo == prezzo_cercato:\n        codice_trovato = sku\n        break`
+      },
+      {
+        id: 2,
+        title: "Bug 3: KeyError inatteso da assenza di chiave",
+        tag: "KeyError & Fallback",
+        snippet: `magazzino = {"ART-01": 25, "ART-02": 8}\n# Cerco un articolo non ancora registrato:\ngiacenza = magazzino["ART-99"]`,
+        question: "Cosa accade senza gestione preventiva della chiave?",
+        options: [
+          { text: "Assegna giacenza = 0 automaticamente", correct: false, reason: "Falso! Python non inventa valori di default da solo con le parentesi quadre." },
+          { text: "Crash con KeyError: 'ART-99'", correct: true, reason: "Corretto! Se la chiave non esiste, l'interprete interrompe l'esecuzione." },
+          { text: "Crea automaticamente la chiave nel dizionario", correct: false, reason: "Falso! L'accesso in sola lettura non inserisce elementi." }
+        ],
+        traceback: "KeyError: 'ART-99'\n  File 'script.py', line 2, in <module>\n    giacenza = magazzino['ART-99']",
+        explanation: "<strong>Misconcezione:</strong> credere che accedere a una chiave assente restituisca stringa vuota o zero. Bisogna usare <code>in</code> o <code>.get()</code>.",
+        fixCode: `# Metodo 1: con l'operatore di appartenenza 'in'\nif "ART-99" in magazzino:\n    giacenza = magazzino["ART-99"]\nelse:\n    giacenza = 0\n\n# Metodo 2 (più compatto): con .get()\ngiacenza = magazzino.get("ART-99", 0)`
+      },
+      {
+        id: 3,
+        title: "Bug 4: Sovrascrittura accidentale (Le chiavi sono univoche!)",
+        tag: "Sovrascrittura",
+        snippet: `ordini = {}\nordini["TAVOLO"] = 120.00\n# Lo studente vuole aggiungere un secondo tavolo:\nordini["TAVOLO"] = 180.00\nprint(len(ordini))`,
+        question: "Cosa stamperà print(len(ordini))?",
+        options: [
+          { text: "Stamperà 2 (due ordini distinti memorizzati)", correct: false, reason: "Errato! Un dizionario NON può contenere chiavi duplicate." },
+          { text: "Stamperà 1, e il valore associato a 'TAVOLO' sarà 180.00", correct: true, reason: "Esatto! La seconda assegnazione ha sovrascritto il valore precedente senza creare una nuova voce." },
+          { text: "Lancia un SyntaxError", correct: false, reason: "Errato! La sintassi è validissima, l'errore è puramente logico." }
+        ],
+        traceback: "Output di console:\n>>> len(ordini)  # Restituisce 1 invece di 2!\n>>> ordini['TAVOLO']  # Vale 180.00 (il valore 120.00 è andato perduto!)",
+        explanation: "<strong>Misconcezione:</strong> pensare che un dizionario accumuli coppie con lo stesso nome come una lista di tuple. Nei dizionari la chiave identifica univocamente lo slot di memoria.",
+        fixCode: `# Soluzione: se un articolo può ripetersi, la chiave deve essere univoca\n# (es. ID transazione), oppure il valore deve essere una lista di importi:\nordini = {\n    "TAVOLO": [120.00, 180.00]  # Lista di valori per la stessa categoria\n}`
+      },
+      {
+        id: 4,
+        title: "Bug 5: Mutazione della dimensione durante il ciclo for",
+        tag: "RuntimeError Ciclo",
+        snippet: `magazzino = {"ART-01": 0, "ART-02": 15, "ART-03": 0}\n# Voglio eliminare gli articoli esauriti:\nfor sku in magazzino:\n    if magazzino[sku] == 0:\n        del magazzino[sku]  # BOOM!`,
+        question: "Cosa accade quando modifichi il dizionario mentre lo scorri?",
+        options: [
+          { text: "Elimina correttamente tutti gli zeri", correct: false, reason: "Errato! Python protegge l'integrità dei puntatori interni della tabella hash." },
+          { text: "Lancia RuntimeError: dictionary changed size during iteration", correct: true, reason: "Esatto! È vietato aggiungere o rimuovere chiavi direttamente mentre il ciclo for le sta scorrendo." },
+          { text: "Salta il ciclo ed esce senza errori", correct: false, reason: "Errato! Si verifica un errore a tempo di esecuzione." }
+        ],
+        traceback: "RuntimeError: dictionary changed size during iteration\n  File 'script.py', line 3, in <module>\n    for sku in magazzino:\n      del magazzino[sku]",
+        explanation: "<strong>Misconcezione:</strong> trattare il dizionario in scorrimento come modificabile al volo. Se si dealloca un elemento, la testina del ciclo perde i riferimenti.",
+        fixCode: `# Metodo A: creare prima una lista di chiavi da rimuovere\nda_eliminare = []\nfor sku, qta in magazzino.items():\n    if qta == 0:\n        da_eliminare.append(sku)\n\nfor sku in da_eliminare:\n    del magazzino[sku]  # Ora è sicuro!`
+      },
+      {
+        id: 5,
+        title: "Bug 6: Mancata comprensione dell'unpacking con .items()",
+        tag: "Unpacking Tupla",
+        snippet: `magazzino = {"ART-01": 10, "ART-02": 20}\ntotale = 0\nfor elem in magazzino.items():\n    totale = totale + elem["ART-01"]  # Errore!`,
+        question: "Cosa restituisce .items() a ogni iterazione del ciclo?",
+        options: [
+          { text: "Un dizionario con una sola coppia", correct: false, reason: "Errato! Non restituisce un mini-dizionario, bensì una tupla (chiave, valore)." },
+          { text: "Una tupla di 2 elementi (chiave, valore)", correct: true, reason: "Esatto! 'elem' è una tupla come ('ART-01', 10). Non puoi indicizzarla come un dizionario!" },
+          { text: "Soltanto il valore numerico", correct: false, reason: "Errato! Quello è il compito di .values()." }
+        ],
+        traceback: "TypeError: tuple indices must be integers or slices, not str\n  File 'script.py', line 4, in <module>\n    totale = totale + elem['ART-01']",
+        explanation: "<strong>Misconcezione:</strong> non comprendere l'unpacking (disimballaggio). Con <code>.items()</code> la sintassi corretta e pulita prevede DUE variabili separate dopo il for.",
+        fixCode: `# Soluzione corretta e idiomatica in Python:\ntotale = 0\nfor codice, quantita in magazzino.items():\n    totale = totale + quantita\n\n# 'codice' riceve la stringa chiave, 'quantita' riceve il valore numerico!`
+      }
+    ];
+
+    let currentMisconIndex = 0;
+
+    function renderMisconception(idx) {
+      currentMisconIndex = idx;
+      const data = MISCONCEPTIONS_DATA[idx];
+
+      // Aggiorna bottoni selettore
+      document.querySelectorAll(".miscon-btn").forEach((btn, i) => {
+        if (i === idx) btn.classList.add("active");
+        else btn.classList.remove("active");
+      });
+
+      const box = document.getElementById("primm-content-box");
+      box.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+          <h3 style="margin:0; font-size:1.2rem; color:var(--text-bright);">${data.title}</h3>
+          <span class="primm-step-badge badge-predict">1. PREDICT (Fase di previsione)</span>
+        </div>
+
+        <div style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:0.6rem;">
+          Osserva con attenzione il codice seguente scritto da uno studente:
+        </div>
+
+        <div class="code-box" style="margin-bottom:1.25rem;">
+          ${data.snippet.replace(/\n/g, "<br>")}
+        </div>
+
+        <div style="font-size:1.05rem; font-weight:700; color:var(--text-bright); margin-bottom:0.75rem;">
+          ❓ ${data.question}
+        </div>
+
+        <div class="quiz-options" id="miscon-quiz-options">
+          ${data.options.map((opt, i) => `
+            <button class="quiz-opt" data-opt-idx="${i}">
+              <span style="font-weight:700; width:28px; height:28px; border-radius:50%; background:var(--bg-surface-subtle); display:inline-flex; align-items:center; justify-content:center; border:1px solid currentColor;">${String.fromCharCode(65 + i)}</span>
+              <span>${opt.text}</span>
+            </button>
+          `).join("")}
+        </div>
+
+        <div id="miscon-result-panel" style="display:none; margin-top:1.5rem;">
+          <!-- Compilato al click della risposta -->
+        </div>
+      `;
+
+      // Event listener opzioni
+      document.querySelectorAll("#miscon-quiz-options .quiz-opt").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const optIdx = parseInt(btn.getAttribute("data-opt-idx"), 10);
+          handleMisconAnswer(optIdx, data);
+        });
+      });
+    }
+
+    function handleMisconAnswer(chosenIdx, data) {
+      const selected = data.options[chosenIdx];
+      const buttons = document.querySelectorAll("#miscon-quiz-options .quiz-opt");
+
+      buttons.forEach((b, i) => {
+        b.disabled = true;
+        if (data.options[i].correct) b.classList.add("correct");
+        else if (i === chosenIdx) b.classList.add("wrong");
+      });
+
+      const resPanel = document.getElementById("miscon-result-panel");
+      resPanel.style.display = "block";
+      resPanel.innerHTML = `
+        <div style="padding:1rem; border-radius:var(--radius-md); margin-bottom:1rem; ${selected.correct ? 'background:var(--color-success-bg); border:1px solid var(--color-success); color:var(--color-success);' : 'background:var(--color-danger-bg); border:1px solid var(--color-danger); color:var(--color-danger);'} font-weight:600;">
+          ${selected.correct ? '🎉 RISPOSTA ESATTA!' : '❌ RISPOSTA NON CORRETTA.'} ${selected.reason}
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:1rem 0 0.5rem 0;">
+          <h4 style="margin:0; font-size:1rem; color:var(--text-bright);">2. RUN & INVESTIGATE: Traceback Reale di Python</h4>
+          <span class="primm-step-badge badge-run">Simulazione Python</span>
+        </div>
+
+        <div class="traceback-card" style="margin-top:0;">
+          <pre style="margin:0; font-family:var(--font-mono); white-space:pre-wrap;">${data.traceback}</pre>
+        </div>
+
+        <div class="didactic-note" style="margin-top:1rem;">
+          ${data.explanation}
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:1.25rem 0 0.5rem 0;">
+          <h4 style="margin:0; font-size:1rem; color:var(--color-success);">3. MODIFY: Codice Corretto e Idiomatico</h4>
+          <span class="primm-step-badge badge-fix">Soluzione Professionale</span>
+        </div>
+
+        <div class="code-box" style="border-color:var(--color-success);">
+          <pre style="margin:0; font-family:var(--font-mono); color:#a7f3d0; white-space:pre-wrap;">${data.fixCode}</pre>
+        </div>
+      `;
+    }
+
+    document.querySelectorAll(".miscon-btn").forEach((btn, idx) => {
+      btn.addEventListener("click", () => renderMisconception(idx));
+    });
+
+    /* ==========================================================================
+       MODULO 5: GESTIONALE CASSA & STRUTTURE DATI COMBINATE
+       ========================================================================== */
+    function renderPOS() {
+      // Rendering Catalogo con bottoni LIM
+      const catContainer = document.getElementById("pos-catalog-container");
+      catContainer.innerHTML = "";
+
+      for (const [sku, item] of Object.entries(warehouse)) {
+        const card = document.createElement("div");
+        card.className = "catalog-item-card";
+        const isOutOfStock = item.qta <= 0;
+        const isLow = item.qta <= item.scorta_min && !isOutOfStock;
+
+        card.innerHTML = `
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.2rem;">
+              <span class="key-badge">🔑 ${sku}</span>
+              <strong style="color:var(--text-bright);">${item.desc}</strong>
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-secondary); display:flex; gap:0.75rem;">
+              <span>Prezzo: <strong style="color:var(--text-bright);">€ ${item.prezzo.toFixed(2)}</strong></span>
+              <span>Giacenza: <strong style="${isOutOfStock ? 'color:var(--color-danger); font-weight:800;' : (isLow ? 'color:var(--color-warning);' : '')}">${item.qta} pz</strong></span>
+              <span>${isOutOfStock ? '<span style="color:var(--color-danger); font-weight:700;">ESAURITO!</span>' : (isLow ? '<span style="color:var(--color-warning); font-weight:700;">SOTTOSCORTA</span>' : '')}</span>
+            </div>
+          </div>
+          <div>
+            <button class="btn btn-primary btn-add-pos" data-sku="${sku}" ${isOutOfStock ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>
+              🛒 Vendi (+1)
+            </button>
+          </div>
+        `;
+        catContainer.appendChild(card);
+      }
+
+      // Event listeners vendita
+      document.querySelectorAll(".btn-add-pos").forEach(b => {
+        b.addEventListener("click", () => {
+          const sku = b.getAttribute("data-sku");
+          addToCart(sku);
+        });
+      });
+
+      renderReceipt();
+    }
+
+    function addToCart(sku) {
+      const item = warehouse[sku];
+      if (!item || item.qta <= 0) return;
+
+      // Cerca se già nel carrello scontrino
+      const existing = cart.find(r => r.codice === sku);
+      if (existing) {
+        if (existing.qta < item.qta) {
+          existing.qta += 1;
+        } else {
+          alert(`Attenzione: giacenza massima a magazzino per ${sku} raggiunta!`);
+        }
+      } else {
+        cart.push({
+          codice: sku,
+          desc: item.desc,
+          prezzo: item.prezzo,
+          qta: 1
+        });
+      }
+      renderReceipt();
+    }
+
+    function renderReceipt() {
+      const listContainer = document.getElementById("receipt-items-list");
+      if (cart.length === 0) {
+        listContainer.innerHTML = `
+          <div style="text-align:center; color:#6b7280; font-style:italic; padding:1.5rem 0;">
+            Nessun articolo a scontrino.<br>Tocca un articolo dal catalogo per iniziare la vendita.
+          </div>`;
+        document.getElementById("receipt-netto").textContent = "€ 0.00";
+        document.getElementById("receipt-iva").textContent = "€ 0.00";
+        document.getElementById("receipt-totale").textContent = "€ 0.00";
+        document.getElementById("receipt-sconto-row").style.display = "none";
+        return;
+      }
+
+      listContainer.innerHTML = "";
+      let totNetto = 0.0;
+
+      cart.forEach((r, idx) => {
+        const sub = r.prezzo * r.qta;
+        totNetto += sub;
+
+        const row = document.createElement("div");
+        row.className = "scontrino-line";
+        row.innerHTML = `
+          <span>${r.qta}x ${r.desc}</span>
+          <span>€ ${sub.toFixed(2)}</span>
+        `;
+        listContainer.appendChild(row);
+      });
+
+      const totIva = totNetto * IVA;
+      let totLordo = totNetto + totIva;
+      let scontoVal = 0.0;
+
+      const scontoRow = document.getElementById("receipt-sconto-row");
+      if (totLordo > SOGLIA_SCONTO) {
+        scontoVal = totLordo * SCONTO_PERC;
+        totLordo = totLordo - scontoVal;
+        scontoRow.style.display = "flex";
+        document.getElementById("receipt-sconto").textContent = `- € ${scontoVal.toFixed(2)}`;
+      } else {
+        scontoRow.style.display = "none";
+      }
+
+      document.getElementById("receipt-netto").textContent = `€ ${totNetto.toFixed(2)}`;
+      document.getElementById("receipt-iva").textContent = `€ ${totIva.toFixed(2)}`;
+      document.getElementById("receipt-totale").textContent = `€ ${totLordo.toFixed(2)}`;
+    }
+
+    document.getElementById("pos-btn-clear-cart").addEventListener("click", () => {
+      cart = [];
+      renderReceipt();
+    });
+
+    document.getElementById("pos-btn-checkout").addEventListener("click", () => {
+      if (cart.length === 0) {
+        alert("Il carrello è vuoto! Aggiungi prima degli articoli.");
+        return;
+      }
+
+      // Scarico effettivo dal dizionario magazzino
+      cart.forEach(r => {
+        if (warehouse[r.codice]) {
+          warehouse[r.codice].qta -= r.qta;
+          if (warehouse[r.codice].qta < 0) warehouse[r.codice].qta = 0;
+        }
+      });
+
+      const itemsSold = cart.reduce((acc, c) => acc + c.qta, 0);
+      cart = [];
+      renderPOS();
+      renderModelTab();
+      renderCRUDTable();
+
+      alert(`✅ Scontrino emesso regolarmente! Scaricati ${itemsSold} articoli dal magazzino in memoria.`);
+    });
+
+    // Modale ispezione struttura dati combinata
+    const datastructModal = document.getElementById("datastruct-modal");
+    document.getElementById("pos-btn-view-datastruct").addEventListener("click", () => {
+      const codeView = document.getElementById("datastruct-code-view");
+      const codeString = `
+<span class="cm"># STRUTTURA COMBINATA IN MEMORIA PYTHON</span>
+
+<span class="cm"># 1. Dizionario di Dizionari (Anagrafica & Giacenze)</span>
+<span class="var">magazzino</span> <span class="op">=</span> ${JSON.stringify(warehouse, null, 2)}
+
+<span class="cm"># 2. Lista di Dizionari (Scontrino di Cassa Corrente)</span>
+<span class="var">scontrino</span> <span class="op">=</span> ${JSON.stringify(cart, null, 2)}
+`;
+      codeView.innerHTML = codeString;
+      datastructModal.classList.add("active");
+    });
+    document.getElementById("btn-close-datastruct").addEventListener("click", () => {
+      datastructModal.classList.remove("active");
+    });
+    datastructModal.addEventListener("click", (e) => {
+      if (e.target === datastructModal) datastructModal.classList.remove("active");
+    });
+
+    /* ==========================================================================
+       MODULO 6: TUTOR SOCRATICO INTEGRATO (SIMULATORE GEM S1 & S3)
+       ========================================================================== */
+    const chatMessages = document.getElementById("chat-messages-box");
+
+    const SOCRATIC_DIALOGUES = {
+      cos_e_chiave: {
+        user: "Cos'è una chiave in un dizionario in parole semplici?",
+        bot: `Pensa a un armadietto della palestra o a un citofono:
+1. <strong>La chiave</strong> è l'etichetta esterna univoca (es. il numero dell'armadietto o il codice <code>"ART-01"</code>).
+2. <strong>Il valore</strong> è ciò che c'è dentro (il tuo zaino o il prezzo dell'articolo).
+
+<em>Domanda per te:</em> Se due persone volessero avere lo stesso identico numero di armadietto, cosa succederebbe? Perché in Python una chiave non può ripetersi?`
+      },
+      perche_keyerror: {
+        user: "Perché Python mi dà KeyError quando cerco un articolo?",
+        bot: `Analizziamo il messaggio di errore:
+1. <strong>Dove si ferma:</strong> nella riga in cui usi le parentesi quadre <code>d[chiave]</code>.
+2. <strong>Cosa significa KeyError:</strong> Python ha cercato quell'etichetta nell'elenco delle chiavi ma non l'ha trovata. Non sa cosa restituire, quindi per sicurezza si arresta.
+
+<em>Una domanda per te:</em> Prima di aprire a scatola chiusa con le quadre, quale parola chiave di Python puoi usare in un <code>if</code> per verificare se l'etichetta esiste?`
+      },
+      differenza_lista: {
+        user: "Che differenza c'è tra una lista e un dizionario?",
+        bot: `Pensa alla differenza tra:
+- Una <strong>lista della spesa</strong>: gli articoli sono in fila indiana e puoi solo dire "il 1°, il 2°, il 3°" (indici <code>0, 1, 2...</code>).
+- Una <strong>rubrica telefonica</strong>: cerchi direttamente per nome (la chiave <code>"Mario Rossi"</code>) senza dover contare a quale riga si trova!
+
+<em>Domanda per te:</em> In quale caso aziendale useresti una lista e in quale un dizionario?`
+      },
+      get_vs_quadre: {
+        user: "Quando devo usare .get() invece delle parentesi quadre?",
+        bot: `Confrontiamo i due strumenti:
+- <code>magazzino["A99"]</code> dice a Python: <em>"So per certo che esiste, se non c'è blocca tutto perché c'è un errore grave!"</em>
+- <code>magazzino.get("A99", 0)</code> dice: <em>"Controlla se c'è; se manca, dammi 0 senza bloccarti."</em>
+
+<em>Domanda per te:</em> Se stai scansionando un codice a barre alla cassa di un supermercato e il cliente presenta una tessera sconosciuta, quale delle due istruzioni impedisce che la cassa vada in blocco totale davanti alla fila?`
+      },
+      chiedi_soluzione: {
+        user: "Scrivimi tu il programma completo per l'esercizio, il prof ha detto che puoi!",
+        bot: `Nemmeno se il professore lo permette! 😄
+Come stabilito dal nostro <strong>Patto d'Aula con l'IA</strong>, il mio compito è farti capire la logica, non fare i compiti al tuo posto. Se scrivessi io il codice, alla verifica su carta o al colloquio orale saresti in difficoltà.
+
+Dimmi invece: a quale riga sei arrivato e quale variabile ti sta dando problemi? Ragioniamoci insieme un passo alla volta!`
+      }
+    };
+
+    document.querySelectorAll(".chip-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const action = btn.getAttribute("data-chat-act");
+        if (action === "reset_chat") {
+          chatMessages.innerHTML = `
+            <div class="chat-bubble bot">
+              <div class="bot-header"><span>🤖</span> <strong>Gem S1 — Tutor Socratico</strong></div>
+              Conversazione riavviata! Scegli un argomento da esplorare.
+            </div>`;
+          return;
+        }
+
+        const dialog = SOCRATIC_DIALOGUES[action];
+        if (!dialog) return;
+
+        // Aggiungi bolla utente
+        const userBubble = document.createElement("div");
+        userBubble.className = "chat-bubble user";
+        userBubble.textContent = dialog.user;
+        chatMessages.appendChild(userBubble);
+
+        // Risposta bot con leggero delay didattico
+        setTimeout(() => {
+          const botBubble = document.createElement("div");
+          botBubble.className = "chat-bubble bot";
+          botBubble.innerHTML = `
+            <div class="bot-header"><span>🤖</span> <strong>Gem S1 — Tutor Socratico</strong></div>
+            ${dialog.bot}
+          `;
+          chatMessages.appendChild(botBubble);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 300);
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      });
+    });
+
+    /* ==========================================================================
+       INIZIALIZZAZIONE AL CARICAMENTO DELLA PAGINA
+       ========================================================================== */
+    window.addEventListener("DOMContentLoaded", () => {
+      renderModelTab();
+      renderCRUDTable();
+      initTracer();
+      renderPOS();
+    });
+  </script>
+</body>
+</html>
